@@ -28,8 +28,23 @@ MAX_TEXT_LENGTH = 8000  # Limit text length for LLM processing
 BATCH_SIZE = 10  # Process in batches
 SAVE_INTERVAL = 50  # Save progress every N papers
 
-# Extraction prompt template
-EXTRACTION_PROMPT = """You are a research analysis assistant. Analyze the following research paper and extract structured information in JSON format.
+# System role definition
+SYSTEM_ROLE = """You are an expert academic analyst specializing in quantifying how machine learning (ML) contributes to scientific breakthroughs and discovery efficiency.
+
+Your task is to measure ML's actual contribution to research outcomes with three key metrics:
+1. Attribution Scoring: What % of the breakthrough comes from ML vs. domain insight?
+2. Acceleration Metrics: Did ML speed discovery by months/years compared to traditional methods?
+3. Efficiency Measures: Did ML reduce cost, time, or resources per discovery?
+
+CRITICAL RULES:
+- Be conservative and evidence-based; do not overstate ML importance
+- Distinguish ML contribution from domain expertise contribution
+- Look for explicit evidence of acceleration, cost reduction, or capability enabling
+- If ML is mentioned but not central to outcomes, mark minimal impact
+- Use precise academic language based on what the paper explicitly demonstrates"""
+
+# User prompt template
+USER_PROMPT = """Analyze how machine learning contributed to this research paper's outcomes.
 
 Paper ID: {paper_id}
 Year: {year}
@@ -41,48 +56,40 @@ Paper Text (truncated if needed):
 Extract the following information in valid JSON format:
 
 {{
-  "citations": {{
-    "cited_papers": ["list of paper titles/authors mentioned in references"],
-    "citation_count_estimate": "estimated number based on references section"
-  }},
-  "ml_adoption": {{
-    "frameworks": ["TensorFlow", "PyTorch", "scikit-learn", etc.],
-    "compute_resources": ["GPU types", "cloud platforms", "HPC systems"],
-    "datasets": ["ImageNet", "COCO", "custom datasets", etc.],
-    "models": ["specific ML models or architectures used"]
-  }},
-  "reproducibility": {{
-    "code_available": true/false,
-    "code_url": "GitHub URL or repository if mentioned",
-    "data_available": true/false,
-    "data_url": "data repository URL if mentioned",
-    "has_supplementary": true/false,
-    "mentions_replication": true/false
-  }},
-  "research_outcomes": {{
-    "has_clinical_trial": true/false,
-    "clinical_trial_ids": ["NCT numbers if mentioned"],
-    "has_patent": true/false,
-    "patent_numbers": ["patent numbers if mentioned"],
-    "mentions_retraction": true/false,
-    "mentions_correction": true/false
-  }},
-  "impact_indicators": {{
-    "mentions_media_coverage": true/false,
-    "mentions_policy_influence": true/false,
-    "mentions_industry_adoption": true/false,
-    "real_world_applications": ["list of mentioned applications"]
-  }},
-  "additional_info": {{
-    "funding_sources": ["NSF", "NIH", "company names", etc.],
-    "collaborations": ["institutions", "companies"],
-    "keywords": ["extracted key technical terms"],
-    "methodology": "brief description of main methodology",
-    "main_findings": "brief summary of key findings"
+  "ml_impact_quantification": {{
+    "has_ml_usage": true/false,
+    "ml_contribution_level": "none|minimal|moderate|substantial|critical",
+
+    "attribution_scoring": {{
+      "ml_contribution_percent": 0-100,
+      "domain_insight_percent": 0-100,
+      "explanation": "Evidence-based explanation of ML vs domain contributions"
+    }},
+
+    "acceleration_metrics": {{
+      "provides_acceleration": true/false,
+      "estimated_speedup": "e.g., '6 months faster', '10x faster than traditional', 'enabled previously impossible task'",
+      "comparison_baseline": "What method ML was compared against, if any",
+      "evidence": "Specific claims from paper about speed/time improvements"
+    }},
+
+    "efficiency_measures": {{
+      "improves_efficiency": true/false,
+      "cost_reduction": "e.g., '$100K saved', '50% less compute', 'reduced from 1000 to 100 experiments'",
+      "resource_optimization": "Types of resources saved (compute, labor, materials, etc.)",
+      "evidence": "Specific efficiency claims from paper"
+    }},
+
+    "breakthrough_analysis": {{
+      "enables_new_capability": true/false,
+      "capability_description": "What became possible that wasn't before",
+      "is_incremental_improvement": true/false,
+      "impact_summary": "Overall assessment of ML's role in this research"
+    }}
   }}
 }}
 
-Return ONLY valid JSON. If information is not found, use null or empty arrays."""
+Return ONLY valid JSON. Use null for unavailable information. Be conservative in scoring - only high scores if paper provides explicit evidence."""
 
 
 def setup_output_dir():
@@ -115,15 +122,16 @@ def check_ollama_available():
         return False
 
 
-def call_ollama(prompt: str, max_retries: int = 3) -> Optional[Dict]:
-    """Call Ollama API to extract information."""
+def call_ollama(system_role: str, user_prompt: str, max_retries: int = 3) -> Optional[Dict]:
+    """Call Ollama API to extract information with system and user roles."""
     for attempt in range(max_retries):
         try:
             response = requests.post(
                 f"{OLLAMA_BASE_URL}/api/generate",
                 json={
                     "model": OLLAMA_MODEL,
-                    "prompt": prompt,
+                    "system": system_role,
+                    "prompt": user_prompt,
                     "stream": False,
                     "format": "json",
                     "options": {
@@ -217,16 +225,16 @@ def extract_paper_info(paper: Dict, category: str) -> Optional[Dict]:
     # Truncate text if needed
     truncated_text = truncate_text(text)
 
-    # Build prompt
-    prompt = EXTRACTION_PROMPT.format(
+    # Build user prompt
+    user_prompt = USER_PROMPT.format(
         paper_id=paper_id,
         year=year,
         field=category,
         text=truncated_text
     )
 
-    # Call Ollama
-    extracted = call_ollama(prompt)
+    # Call Ollama with system role and user prompt
+    extracted = call_ollama(SYSTEM_ROLE, user_prompt)
 
     if extracted:
         # Add metadata
