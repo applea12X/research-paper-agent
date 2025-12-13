@@ -32,6 +32,7 @@ export function BubbleHeatmap({ papers, disciplines, activeFilters, mode, onDisc
   const simulationRef = useRef<d3.Simulation<ExtendedNode, undefined> | null>(null);
   const [hoveredNode, setHoveredNode] = useState<ExtendedNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   const isLowPowerDevice = useRef<boolean>(false);
 
@@ -693,14 +694,29 @@ export function BubbleHeatmap({ papers, disciplines, activeFilters, mode, onDisc
       <AnimatePresence>
         {hoveredNode && visualizationMode === 'MODE_OVERVIEW' && (
           <motion.div
+            ref={tooltipRef}
             initial={{ opacity: 0, scale: 0.9, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 10 }}
             transition={{ duration: 0.15 }}
             style={{
               position: "fixed",
-              left: tooltipPos.x + 20,
-              top: tooltipPos.y - 20,
+              left: (() => {
+                // Smart positioning: check if tooltip would go off-screen
+                if (typeof window === 'undefined') return tooltipPos.x + 20;
+                const tooltipWidth = tooltipRef.current?.offsetWidth || 320; // max-w-xs ~ 320px
+                const offset = 20;
+                const wouldOverflowRight = tooltipPos.x + offset + tooltipWidth > window.innerWidth;
+                return wouldOverflowRight ? tooltipPos.x - tooltipWidth - offset : tooltipPos.x + offset;
+              })(),
+              top: (() => {
+                // Smart positioning: check if tooltip would go off-screen vertically
+                if (typeof window === 'undefined') return tooltipPos.y - 20;
+                const tooltipHeight = tooltipRef.current?.offsetHeight || 200;
+                const offset = 20;
+                const wouldOverflowBottom = tooltipPos.y + tooltipHeight > window.innerHeight;
+                return wouldOverflowBottom ? tooltipPos.y - tooltipHeight - offset : tooltipPos.y - offset;
+              })(),
               pointerEvents: "none",
               zIndex: 50,
             }}
