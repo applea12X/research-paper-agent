@@ -1,2 +1,13 @@
 # Dataset folder
 dataset/
+
+# Data folders - ignore uncompressed versions
+data/*/
+!data/combined_compressed/
+
+# Ignore individual uncompressed data directories
+data/papers/
+data/combined/
+
+# But keep compressed files
+!data/**/*.gz
