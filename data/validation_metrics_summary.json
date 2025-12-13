@@ -1,0 +1,1239 @@
+{
+  "metadata": {
+    "generated_at": "2025-12-13T15:02:16.974952",
+    "max_papers_per_field": 100,
+    "random_seed": 42,
+    "total_papers": 1272,
+    "total_fields": 13
+  },
+  "aggregate_metrics": {
+    "total_papers_analyzed": 1272,
+    "total_fields": 13,
+    "aggregate_ml_adoption_rate": 11.63,
+    "aggregate_code_availability_rate": 2.52,
+    "top_fields_by_ml_adoption": {
+      "ComputerScience": 35.0,
+      "Psychology": 17.0,
+      "EnvironmentalScience": 14.0,
+      "Economics": 13.0,
+      "Physics": 12.0
+    },
+    "top_fields_by_code_availability": {
+      "ComputerScience": 10.0,
+      "EnvironmentalScience": 4.0,
+      "Engineering": 3.0,
+      "Mathematics": 3.0,
+      "Physics": 3.0
+    }
+  },
+  "field_analyses": {
+    "AgriculturalAndFoodSciences": {
+      "field_name": "AgriculturalAndFoodSciences",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 92,
+            "percentage": 92.0
+          },
+          "minimal": {
+            "count": 8,
+            "percentage": 8.0
+          }
+        },
+        "ml_adoption_rate": 8.0,
+        "significant_ml_usage_rate": 0.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 1.0,
+        "papers_with_code": 1,
+        "papers_without_code": 99,
+        "top_ml_frameworks": {
+          "SPSS": 2,
+          "Application worxG2 software": 1,
+          "IBM SPSS Statistics 24.0": 1,
+          "R/qtl package": 1,
+          "Minitab": 1,
+          "SAMtools": 1,
+          "WinQTL Cartographer": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 92,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "minimal": {
+            "total": 8,
+            "code_available": 1,
+            "rate": 12.5
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 56.0,
+        "papers_with_statistics": 56,
+        "papers_without_statistics": 44
+      },
+      "temporal": {
+        "year_range": "2021 - 2021",
+        "papers_by_year": {
+          "2021": 100
+        },
+        "ml_adoption_by_year": {
+          "2021": {
+            "total_papers": 100,
+            "ml_papers": 8,
+            "ml_rate": 8.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 92.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 100.0
+      }
+    },
+    "Biology": {
+      "field_name": "Biology",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 90,
+            "percentage": 90.0
+          },
+          "core": {
+            "count": 1,
+            "percentage": 1.0
+          },
+          "minimal": {
+            "count": 9,
+            "percentage": 9.0
+          }
+        },
+        "ml_adoption_rate": 10.0,
+        "significant_ml_usage_rate": 1.0,
+        "core_ml_rate": 1.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 1.0,
+        "papers_with_code": 1,
+        "papers_without_code": 99,
+        "top_ml_frameworks": {
+          "lightGBM": 1,
+          "PyPop": 1,
+          "MapView": 1,
+          "MATLAB": 1,
+          "SPSS V.22": 1,
+          "ImageJ": 1,
+          "Prism 9": 1,
+          "BLAST": 1,
+          "ClustalW": 1,
+          "QIIME": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 90,
+            "code_available": 1,
+            "rate": 1.11
+          },
+          "minimal": {
+            "total": 9,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "core": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 52.0,
+        "papers_with_statistics": 52,
+        "papers_without_statistics": 48
+      },
+      "temporal": {
+        "year_range": "2009 - 2022",
+        "papers_by_year": {
+          "2022": 5,
+          "2016": 24,
+          "2021": 23,
+          "2019": 8,
+          "2017": 32,
+          "2009": 4,
+          "2010": 4
+        },
+        "ml_adoption_by_year": {
+          "2009": {
+            "total_papers": 4,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2010": {
+            "total_papers": 4,
+            "ml_papers": 2,
+            "ml_rate": 50.0
+          },
+          "2016": {
+            "total_papers": 24,
+            "ml_papers": 1,
+            "ml_rate": 4.17
+          },
+          "2017": {
+            "total_papers": 32,
+            "ml_papers": 2,
+            "ml_rate": 6.25
+          },
+          "2019": {
+            "total_papers": 8,
+            "ml_papers": 1,
+            "ml_rate": 12.5
+          },
+          "2021": {
+            "total_papers": 23,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2022": {
+            "total_papers": 5,
+            "ml_papers": 4,
+            "ml_rate": 80.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 96.0,
+        "clinical_outcomes_rate": 8.0,
+        "real_world_application_rate": 79.0
+      }
+    },
+    "Business": {
+      "field_name": "Business",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 87,
+            "percentage": 91.58
+          },
+          "minimal": {
+            "count": 7,
+            "percentage": 7.37
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.05
+          }
+        },
+        "ml_adoption_rate": 8.42,
+        "significant_ml_usage_rate": 1.05,
+        "core_ml_rate": 0.0,
+        "total_papers": 95
+      },
+      "reproducibility": {
+        "code_availability_rate": 0.0,
+        "papers_with_code": 0,
+        "papers_without_code": 95,
+        "top_ml_frameworks": {
+          "SPSS": 3
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 87,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "minimal": {
+            "total": 7,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 33.68,
+        "papers_with_statistics": 32,
+        "papers_without_statistics": 63
+      },
+      "temporal": {
+        "year_range": "2018 - 2019",
+        "papers_by_year": {
+          "2019": 72,
+          "2018": 23
+        },
+        "ml_adoption_by_year": {
+          "2018": {
+            "total_papers": 23,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2019": {
+            "total_papers": 72,
+            "ml_papers": 8,
+            "ml_rate": 11.11
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 44.21,
+        "clinical_outcomes_rate": 1.05,
+        "real_world_application_rate": 100.0
+      }
+    },
+    "ComputerScience": {
+      "field_name": "ComputerScience",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 65,
+            "percentage": 65.0
+          },
+          "moderate": {
+            "count": 15,
+            "percentage": 15.0
+          },
+          "core": {
+            "count": 8,
+            "percentage": 8.0
+          },
+          "substantial": {
+            "count": 3,
+            "percentage": 3.0
+          },
+          "minimal": {
+            "count": 9,
+            "percentage": 9.0
+          }
+        },
+        "ml_adoption_rate": 35.0,
+        "significant_ml_usage_rate": 26.0,
+        "core_ml_rate": 8.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 10.0,
+        "papers_with_code": 10,
+        "papers_without_code": 90,
+        "top_ml_frameworks": {
+          "MATLAB": 5,
+          "Matlab": 4,
+          "OpenCV": 3,
+          "R": 2,
+          "Node.js": 1,
+          "Vagrant": 1,
+          "Ansible": 1,
+          "NS 2.33": 1,
+          "Sony Stereo IC Recorder": 1,
+          "Arduino UNO": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 65,
+            "code_available": 4,
+            "rate": 6.15
+          },
+          "minimal": {
+            "total": 9,
+            "code_available": 1,
+            "rate": 11.11
+          },
+          "moderate": {
+            "total": 15,
+            "code_available": 3,
+            "rate": 20.0
+          },
+          "substantial": {
+            "total": 3,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "core": {
+            "total": 8,
+            "code_available": 2,
+            "rate": 25.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 29.0,
+        "papers_with_statistics": 29,
+        "papers_without_statistics": 71
+      },
+      "temporal": {
+        "year_range": "2009 - 2022",
+        "papers_by_year": {
+          "2021": 33,
+          "2019": 14,
+          "2010": 3,
+          "2022": 10,
+          "2017": 9,
+          "2020": 24,
+          "2009": 3,
+          "2011": 4
+        },
+        "ml_adoption_by_year": {
+          "2009": {
+            "total_papers": 3,
+            "ml_papers": 2,
+            "ml_rate": 66.67
+          },
+          "2010": {
+            "total_papers": 3,
+            "ml_papers": 2,
+            "ml_rate": 66.67
+          },
+          "2011": {
+            "total_papers": 4,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2017": {
+            "total_papers": 9,
+            "ml_papers": 2,
+            "ml_rate": 22.22
+          },
+          "2019": {
+            "total_papers": 14,
+            "ml_papers": 3,
+            "ml_rate": 21.43
+          },
+          "2020": {
+            "total_papers": 24,
+            "ml_papers": 8,
+            "ml_rate": 33.33
+          },
+          "2021": {
+            "total_papers": 33,
+            "ml_papers": 8,
+            "ml_rate": 24.24
+          },
+          "2022": {
+            "total_papers": 10,
+            "ml_papers": 10,
+            "ml_rate": 100.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 78.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 92.0
+      }
+    },
+    "Economics": {
+      "field_name": "Economics",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 87,
+            "percentage": 87.0
+          },
+          "minimal": {
+            "count": 13,
+            "percentage": 13.0
+          }
+        },
+        "ml_adoption_rate": 13.0,
+        "significant_ml_usage_rate": 0.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 2.0,
+        "papers_with_code": 2,
+        "papers_without_code": 98,
+        "top_ml_frameworks": {
+          "SPSS-20": 1,
+          "VoiceText": 1,
+          "STATA version 13": 1,
+          "R statistical software": 1,
+          "scholar package": 1,
+          "quantmod package": 1,
+          "dplyr package": 1,
+          "reshape2 package": 1,
+          "ggplot2 package": 1,
+          "srjdata package": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 87,
+            "code_available": 2,
+            "rate": 2.3
+          },
+          "minimal": {
+            "total": 13,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 53.0,
+        "papers_with_statistics": 53,
+        "papers_without_statistics": 47
+      },
+      "temporal": {
+        "year_range": "2020 - 2020",
+        "papers_by_year": {
+          "2020": 100
+        },
+        "ml_adoption_by_year": {
+          "2020": {
+            "total_papers": 100,
+            "ml_papers": 13,
+            "ml_rate": 13.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 59.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 100.0
+      }
+    },
+    "Engineering": {
+      "field_name": "Engineering",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 93,
+            "percentage": 93.0
+          },
+          "minimal": {
+            "count": 6,
+            "percentage": 6.0
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.0
+          }
+        },
+        "ml_adoption_rate": 7.0,
+        "significant_ml_usage_rate": 1.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 3.0,
+        "papers_with_code": 3,
+        "papers_without_code": 97,
+        "top_ml_frameworks": {
+          "MATLAB": 3,
+          "SPSS": 1,
+          "Matlab/Simulink": 1,
+          "LabVIEW": 1,
+          "Python": 1,
+          "Experiment Planner 1.0": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 93,
+            "code_available": 2,
+            "rate": 2.15
+          },
+          "minimal": {
+            "total": 6,
+            "code_available": 1,
+            "rate": 16.67
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 22.0,
+        "papers_with_statistics": 22,
+        "papers_without_statistics": 78
+      },
+      "temporal": {
+        "year_range": "2017 - 2019",
+        "papers_by_year": {
+          "2017": 26,
+          "2018": 31,
+          "2019": 43
+        },
+        "ml_adoption_by_year": {
+          "2017": {
+            "total_papers": 26,
+            "ml_papers": 1,
+            "ml_rate": 3.85
+          },
+          "2018": {
+            "total_papers": 31,
+            "ml_papers": 3,
+            "ml_rate": 9.68
+          },
+          "2019": {
+            "total_papers": 43,
+            "ml_papers": 3,
+            "ml_rate": 6.98
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 88.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 100.0
+      }
+    },
+    "EnvironmentalScience": {
+      "field_name": "EnvironmentalScience",
+      "ml_impact": {
+        "ml_distribution": {
+          "minimal": {
+            "count": 13,
+            "percentage": 13.0
+          },
+          "none": {
+            "count": 86,
+            "percentage": 86.0
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.0
+          }
+        },
+        "ml_adoption_rate": 14.0,
+        "significant_ml_usage_rate": 1.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 4.0,
+        "papers_with_code": 4,
+        "papers_without_code": 96,
+        "top_ml_frameworks": {
+          "R": 2,
+          "GetData Graph digitizer software version 2.25": 1,
+          "Fast Fourier Transform": 1,
+          "Ensemble Empirical Mode Decomposition (EEMD)": 1,
+          "ArcGIS": 1,
+          "Great Lakes Aquatic Habitat Framework spatial database": 1,
+          "mgcv package": 1,
+          "FFT": 1,
+          "least-square minimization": 1,
+          "spatstat": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 86,
+            "code_available": 2,
+            "rate": 2.33
+          },
+          "minimal": {
+            "total": 13,
+            "code_available": 2,
+            "rate": 15.38
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 55.0,
+        "papers_with_statistics": 55,
+        "papers_without_statistics": 45
+      },
+      "temporal": {
+        "year_range": "2020 - 2020",
+        "papers_by_year": {
+          "2020": 100
+        },
+        "ml_adoption_by_year": {
+          "2020": {
+            "total_papers": 100,
+            "ml_papers": 14,
+            "ml_rate": 14.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 89.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 97.0
+      }
+    },
+    "MaterialsScience": {
+      "field_name": "MaterialsScience",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 72,
+            "percentage": 93.51
+          },
+          "minimal": {
+            "count": 4,
+            "percentage": 5.19
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.3
+          }
+        },
+        "ml_adoption_rate": 6.49,
+        "significant_ml_usage_rate": 1.3,
+        "core_ml_rate": 0.0,
+        "total_papers": 77
+      },
+      "reproducibility": {
+        "code_availability_rate": 2.6,
+        "papers_with_code": 2,
+        "papers_without_code": 75,
+        "top_ml_frameworks": {
+          "MATLAB R2017b": 1,
+          "R": 1,
+          "MASS": 1,
+          "Fiji-ImageJ": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 72,
+            "code_available": 2,
+            "rate": 2.78
+          },
+          "minimal": {
+            "total": 4,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 15.58,
+        "papers_with_statistics": 12,
+        "papers_without_statistics": 65
+      },
+      "temporal": {
+        "year_range": "2021 - 2022",
+        "papers_by_year": {
+          "2022": 16,
+          "2021": 61
+        },
+        "ml_adoption_by_year": {
+          "2021": {
+            "total_papers": 61,
+            "ml_papers": 2,
+            "ml_rate": 3.28
+          },
+          "2022": {
+            "total_papers": 16,
+            "ml_papers": 3,
+            "ml_rate": 18.75
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 97.4,
+        "clinical_outcomes_rate": 1.3,
+        "real_world_application_rate": 98.7
+      }
+    },
+    "Mathematics": {
+      "field_name": "Mathematics",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 98,
+            "percentage": 98.0
+          },
+          "minimal": {
+            "count": 1,
+            "percentage": 1.0
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.0
+          }
+        },
+        "ml_adoption_rate": 2.0,
+        "significant_ml_usage_rate": 1.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 3.0,
+        "papers_with_code": 3,
+        "papers_without_code": 97,
+        "top_ml_frameworks": {
+          "R": 2,
+          "gam package": 1,
+          "mgcv": 1,
+          "gamlss": 1,
+          "VGAM": 1,
+          "spatsurv": 1,
+          "R2BayesX": 1,
+          "mboost": 1,
+          "gamboostMSM": 1,
+          "Mathematica": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 98,
+            "code_available": 2,
+            "rate": 2.04
+          },
+          "minimal": {
+            "total": 1,
+            "code_available": 1,
+            "rate": 100.0
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 22.0,
+        "papers_with_statistics": 22,
+        "papers_without_statistics": 78
+      },
+      "temporal": {
+        "year_range": "2007 - 2021",
+        "papers_by_year": {
+          "2008": 10,
+          "2020": 40,
+          "2018": 18,
+          "2021": 25,
+          "2009": 6,
+          "2007": 1
+        },
+        "ml_adoption_by_year": {
+          "2007": {
+            "total_papers": 1,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2008": {
+            "total_papers": 10,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2009": {
+            "total_papers": 6,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2018": {
+            "total_papers": 18,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2020": {
+            "total_papers": 40,
+            "ml_papers": 1,
+            "ml_rate": 2.5
+          },
+          "2021": {
+            "total_papers": 25,
+            "ml_papers": 1,
+            "ml_rate": 4.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 27.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 47.0
+      }
+    },
+    "Medicine": {
+      "field_name": "Medicine",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 94,
+            "percentage": 94.0
+          },
+          "moderate": {
+            "count": 1,
+            "percentage": 1.0
+          },
+          "minimal": {
+            "count": 5,
+            "percentage": 5.0
+          }
+        },
+        "ml_adoption_rate": 6.0,
+        "significant_ml_usage_rate": 1.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 2.0,
+        "papers_with_code": 2,
+        "papers_without_code": 98,
+        "top_ml_frameworks": {
+          "SPSS": 6,
+          "IBM SPSS": 1,
+          "R": 1,
+          "R3.6.1": 1,
+          "GSVA": 1,
+          "limma": 1,
+          "survival package": 1,
+          "penalized package": 1,
+          "ESTIMATE": 1,
+          "CIBERSORT": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 94,
+            "code_available": 2,
+            "rate": 2.13
+          },
+          "minimal": {
+            "total": 5,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "moderate": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 66.0,
+        "papers_with_statistics": 66,
+        "papers_without_statistics": 34
+      },
+      "temporal": {
+        "year_range": "2007 - 2021",
+        "papers_by_year": {
+          "2018": 39,
+          "2008": 8,
+          "2021": 45,
+          "2009": 7,
+          "2007": 1
+        },
+        "ml_adoption_by_year": {
+          "2007": {
+            "total_papers": 1,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2008": {
+            "total_papers": 8,
+            "ml_papers": 0,
+            "ml_rate": 0.0
+          },
+          "2009": {
+            "total_papers": 7,
+            "ml_papers": 1,
+            "ml_rate": 14.29
+          },
+          "2018": {
+            "total_papers": 39,
+            "ml_papers": 2,
+            "ml_rate": 5.13
+          },
+          "2021": {
+            "total_papers": 45,
+            "ml_papers": 3,
+            "ml_rate": 6.67
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 94.0,
+        "clinical_outcomes_rate": 24.0,
+        "real_world_application_rate": 95.0
+      }
+    },
+    "NA": {
+      "field_name": "NA",
+      "ml_impact": {
+        "ml_distribution": {
+          "minimal": {
+            "count": 8,
+            "percentage": 8.0
+          },
+          "none": {
+            "count": 89,
+            "percentage": 89.0
+          },
+          "moderate": {
+            "count": 3,
+            "percentage": 3.0
+          }
+        },
+        "ml_adoption_rate": 11.0,
+        "significant_ml_usage_rate": 3.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 0.0,
+        "papers_with_code": 0,
+        "papers_without_code": 100,
+        "top_ml_frameworks": {
+          "R": 3,
+          "SPSS": 3,
+          "Google Maps API": 1,
+          "GPS": 1,
+          "RStudio": 1,
+          "py-eddy-tracker": 1,
+          "ENMeval package": 1,
+          "CSpro": 1,
+          "Excel": 1,
+          "GIS": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 89,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "minimal": {
+            "total": 8,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "moderate": {
+            "total": 3,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 37.0,
+        "papers_with_statistics": 37,
+        "papers_without_statistics": 63
+      },
+      "temporal": {
+        "year_range": "2020 - 2022",
+        "papers_by_year": {
+          "2020": 60,
+          "2021": 25,
+          "2022": 15
+        },
+        "ml_adoption_by_year": {
+          "2020": {
+            "total_papers": 60,
+            "ml_papers": 6,
+            "ml_rate": 10.0
+          },
+          "2021": {
+            "total_papers": 25,
+            "ml_papers": 4,
+            "ml_rate": 16.0
+          },
+          "2022": {
+            "total_papers": 15,
+            "ml_papers": 1,
+            "ml_rate": 6.67
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 69.0,
+        "clinical_outcomes_rate": 2.0,
+        "real_world_application_rate": 91.0
+      }
+    },
+    "Physics": {
+      "field_name": "Physics",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 88,
+            "percentage": 88.0
+          },
+          "minimal": {
+            "count": 8,
+            "percentage": 8.0
+          },
+          "moderate": {
+            "count": 3,
+            "percentage": 3.0
+          },
+          "substantial": {
+            "count": 1,
+            "percentage": 1.0
+          }
+        },
+        "ml_adoption_rate": 12.0,
+        "significant_ml_usage_rate": 4.0,
+        "core_ml_rate": 0.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 3.0,
+        "papers_with_code": 3,
+        "papers_without_code": 97,
+        "top_ml_frameworks": {
+          "TMVA": 2,
+          "python": 1,
+          "PyWiFeS": 1,
+          "FBEYE": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 88,
+            "code_available": 1,
+            "rate": 1.14
+          },
+          "minimal": {
+            "total": 8,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "moderate": {
+            "total": 3,
+            "code_available": 1,
+            "rate": 33.33
+          },
+          "substantial": {
+            "total": 1,
+            "code_available": 1,
+            "rate": 100.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 40.0,
+        "papers_with_statistics": 40,
+        "papers_without_statistics": 60
+      },
+      "temporal": {
+        "year_range": "2017 - 2018",
+        "papers_by_year": {
+          "2017": 94,
+          "2018": 6
+        },
+        "ml_adoption_by_year": {
+          "2017": {
+            "total_papers": 94,
+            "ml_papers": 7,
+            "ml_rate": 7.45
+          },
+          "2018": {
+            "total_papers": 6,
+            "ml_papers": 5,
+            "ml_rate": 83.33
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 76.0,
+        "clinical_outcomes_rate": 0.0,
+        "real_world_application_rate": 71.0
+      }
+    },
+    "Psychology": {
+      "field_name": "Psychology",
+      "ml_impact": {
+        "ml_distribution": {
+          "none": {
+            "count": 83,
+            "percentage": 83.0
+          },
+          "minimal": {
+            "count": 15,
+            "percentage": 15.0
+          },
+          "core": {
+            "count": 1,
+            "percentage": 1.0
+          },
+          "substantial": {
+            "count": 1,
+            "percentage": 1.0
+          }
+        },
+        "ml_adoption_rate": 17.0,
+        "significant_ml_usage_rate": 2.0,
+        "core_ml_rate": 1.0,
+        "total_papers": 100
+      },
+      "reproducibility": {
+        "code_availability_rate": 1.0,
+        "papers_with_code": 1,
+        "papers_without_code": 99,
+        "top_ml_frameworks": {
+          "SAS": 1,
+          "IBM SPSS statistics 25": 1,
+          "SmartPLS": 1,
+          "R": 1,
+          "FSL": 1,
+          "MRIcro": 1,
+          "fastICA": 1
+        },
+        "code_availability_by_ml_level": {
+          "none": {
+            "total": 83,
+            "code_available": 1,
+            "rate": 1.2
+          },
+          "minimal": {
+            "total": 15,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "substantial": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          },
+          "core": {
+            "total": 1,
+            "code_available": 0,
+            "rate": 0.0
+          }
+        }
+      },
+      "methodology": {
+        "statistical_methods_usage_rate": 62.0,
+        "papers_with_statistics": 62,
+        "papers_without_statistics": 38
+      },
+      "temporal": {
+        "year_range": "2021 - 2022",
+        "papers_by_year": {
+          "2021": 85,
+          "2022": 15
+        },
+        "ml_adoption_by_year": {
+          "2021": {
+            "total_papers": 85,
+            "ml_papers": 8,
+            "ml_rate": 9.41
+          },
+          "2022": {
+            "total_papers": 15,
+            "ml_papers": 9,
+            "ml_rate": 60.0
+          }
+        }
+      },
+      "outcomes": {
+        "validation_mentioned_rate": 84.0,
+        "clinical_outcomes_rate": 6.0,
+        "real_world_application_rate": 91.0
+      }
+    }
+  },
+  "gpt_summary_prompt": "Based on the following quantified metrics from research paper analysis, provide a comprehensive summary addressing:\n\n1. ML Impact Quantification:\n   - How much does ML actually contribute across scientific disciplines?\n   - What are the adoption patterns and breakthrough indicators?\n\n2. Adoption Dynamics:\n   - How has ML adoption evolved over time?\n   - Which fields lead or lag in ML integration?\n\n3. Quality Trade-offs:\n   - Does ML adoption correlate with better reproducibility (code availability)?\n   - What are the implications for research quality?\n\n4. Discovery Impact:\n   - What patterns emerge in research outcomes?\n   - How does ML impact translate to real-world applications?\n\nMETRICS DATA:\n"
+}
