@@ -1,25 +1,35 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-import { Paper, FilterType } from "@/types";
+import { Paper, Discipline, FilterType } from "@/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 
 interface BubbleHeatmapProps {
-  papers: Paper[];
+  papers?: Paper[];
+  disciplines?: Discipline[];
   activeFilter: FilterType;
+  mode: "papers" | "disciplines";
+  onDisciplineClick?: (discipline: Discipline) => void;
 }
 
-// Extended Paper type for dynamic expansion
+// Extended types for dynamic expansion
 interface ExtendedPaper extends Paper {
-  targetRadius?: number; // Dynamic expansion target
-  currentRadius?: number; // Smoothly interpolated radius
+  targetRadius?: number;
+  currentRadius?: number;
 }
 
-export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
+interface ExtendedDiscipline extends Discipline {
+  targetRadius?: number;
+  currentRadius?: number;
+}
+
+type ExtendedNode = ExtendedPaper | ExtendedDiscipline;
+
+export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisciplineClick }: BubbleHeatmapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const simulationRef = useRef<d3.Simulation<ExtendedPaper, undefined> | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<Paper | null>(null);
+  const simulationRef = useRef<d3.Simulation<ExtendedNode, undefined> | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<ExtendedNode | null>(null);
   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   // === PERFORMANCE DETECTION ===
@@ -65,7 +75,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
   const expandAnimationRef = useRef<number | null>(null);
 
   // Preserved state for reverse transition
-  const preservedStateRef = useRef<ExtendedPaper[] | null>(null);
+  const preservedStateRef = useRef<ExtendedNode[] | null>(null);
 
   // Sync expandProgress to ref for render loop access
   useEffect(() => {
@@ -74,7 +84,8 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
   // Initialize simulation
   useEffect(() => {
-    if (!canvasRef.current || !containerRef.current || papers.length === 0) return;
+    const dataSource = mode === "disciplines" ? disciplines : papers;
+    if (!canvasRef.current || !containerRef.current || !dataSource || dataSource.length === 0) return;
 
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -93,21 +104,32 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
     // === STATE ISOLATION: Create deep copy to avoid mutating props ===
     // This prevents corruption when transitioning between modes
-    const extendedPapers: ExtendedPaper[] = papers.map(p => ({
-      ...p,
-      x: p.x || width * (p.impactScore / 100),
-      y: p.y || height / 2 + (Math.random() - 0.5) * 50,
-      r: 4 + (p.impactScore / 100) * 8,
-      vx: p.vx || 0,
-      vy: p.vy || 0,
-      targetRadius: undefined,
-      currentRadius: undefined,
-    }));
+    const extendedNodes: ExtendedNode[] = mode === "disciplines"
+      ? (disciplines || []).map(d => ({
+          ...d,
+          x: d.x || width * (d.impactScore / 100),
+          y: d.y || height / 2 + (Math.random() - 0.5) * 50,
+          r: 8 + (d.paperCount / 30) * 12, // Larger bubbles for disciplines
+          vx: d.vx || 0,
+          vy: d.vy || 0,
+          targetRadius: undefined,
+          currentRadius: undefined,
+        } as ExtendedDiscipline))
+      : (papers || []).map(p => ({
+          ...p,
+          x: p.x || width * (p.impactScore / 100),
+          y: p.y || height / 2 + (Math.random() - 0.5) * 50,
+          r: 4 + (p.impactScore / 100) * 8,
+          vx: p.vx || 0,
+          vy: p.vy || 0,
+          targetRadius: undefined,
+          currentRadius: undefined,
+        } as ExtendedPaper));
 
     // Initialize dynamic properties
-    extendedPapers.forEach(p => {
-      p.targetRadius = p.r;
-      p.currentRadius = p.r;
+    extendedNodes.forEach(node => {
+      node.targetRadius = node.r;
+      node.currentRadius = node.r;
     });
 
     // Color scale: Blue (low) -> Purple -> Red (high)
@@ -117,9 +139,9 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
     const colorScale = d3.scaleSequential((t) => d3.interpolateRdBu(1 - t))
       .domain([0, width]);
 
-    // Force simulation with extended papers
+    // Force simulation with extended nodes
     // Performance-aware: faster settling on low-power devices
-    const simulation = d3.forceSimulation<ExtendedPaper>(extendedPapers)
+    const simulation = d3.forceSimulation<ExtendedNode>(extendedNodes)
       .alphaDecay(performanceMode.simulationAlphaDecay)
       .velocityDecay(performanceMode.simulationVelocityDecay);
 
@@ -152,7 +174,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       // === CURSOR-DRIVEN EXPANSION WITH FORCE PROPAGATION ===
       // First pass: Update all bubble target radii based on cursor (disabled during expansion)
       if (currentMode === 'MODE_OVERVIEW') {
-        extendedPapers.forEach(node => {
+        extendedNodes.forEach(node => {
           if (!node.x || !node.y || !node.r) return;
 
           // Calculate distance from cursor to bubble
@@ -179,13 +201,13 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
       // Second pass: Apply collision forces based on currentRadius
       // This makes expanding bubbles actively push neighbors away
-      extendedPapers.forEach(nodeA => {
+      extendedNodes.forEach(nodeA => {
         if (!nodeA.x || !nodeA.y || !nodeA.r) return;
         const axPos = nodeA.x;
         const ayPos = nodeA.y;
         const aRadius = nodeA.currentRadius || nodeA.r;
 
-        extendedPapers.forEach(nodeB => {
+        extendedNodes.forEach(nodeB => {
           if (nodeA === nodeB || !nodeB.x || !nodeB.y || !nodeB.r) return;
 
           const dx = nodeB.x - axPos;
@@ -215,7 +237,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       const fadeOpacity = isExpanding ? Math.max(0, 1 - currentExpandProgress * 1.2) : 1;
       const blurAmount = isExpanding ? currentExpandProgress * 8 : 0; // Gradually blur up to 8px
 
-      extendedPapers.forEach(node => {
+      extendedNodes.forEach(node => {
         if (!node.x || !node.y || !node.r) return;
 
         // Gentle floaty motion - add noise to velocity (disabled during expansion or on low-power devices)
@@ -250,10 +272,18 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
         ctx.fill();
 
-        // White ring for code available
-        if (node.codeAvailable) {
+        // White ring for code available (papers mode) or paper count indicator (disciplines mode)
+        const isPaper = 'codeAvailable' in node;
+        const isDiscipline = 'paperCount' in node;
+
+        if (isPaper && node.codeAvailable) {
           ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 * fadeOpacity})`;
           ctx.lineWidth = 1.5;
+          ctx.stroke();
+        } else if (isDiscipline) {
+          // Show a thicker ring for disciplines
+          ctx.strokeStyle = `rgba(255, 255, 255, ${0.6 * fadeOpacity})`;
+          ctx.lineWidth = 2;
           ctx.stroke();
         }
 
@@ -290,15 +320,15 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       mouseY = e.clientY - rect.top;
 
       // Find closest node
-      let closest: Paper | null = null;
+      let closest: ExtendedNode | null = null;
       let minDist = Infinity;
 
-      papers.forEach(node => {
+      extendedNodes.forEach(node => {
         if (!node.x || !node.y) return;
         const dx = mouseX - node.x;
         const dy = mouseY - node.y;
         const d = Math.sqrt(dx * dx + dy * dy);
-        
+
         if (d < (node.r || 10) + 5 && d < minDist) { // +5 hit tolerance
           minDist = d;
           closest = node;
@@ -308,7 +338,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       if (closest !== hoveredNode) {
         setHoveredNode(closest);
       }
-      
+
       setTooltipPos({ x: e.clientX, y: e.clientY });
     };
 
@@ -328,10 +358,10 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       const clickY = e.clientY - rect.top;
 
       // Find clicked bubble
-      let clickedBubble: ExtendedPaper | null = null;
+      let clickedBubble: ExtendedNode | null = null;
       let minDist = Infinity;
 
-      extendedPapers.forEach(node => {
+      extendedNodes.forEach(node => {
         if (!node.x || !node.y) return;
         const dx = clickX - node.x;
         const dy = clickY - node.y;
@@ -344,16 +374,23 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
       });
 
       if (clickedBubble) {
-        // === TRANSITION SEQUENCING: Step 1 - Preserve state ===
-        preservedStateRef.current = extendedPapers.map(p => ({ ...p }));
+        // Check if it's a discipline or a paper
+        if (mode === 'disciplines' && 'paperCount' in clickedBubble && onDisciplineClick) {
+          // In discipline mode, clicking should navigate to that discipline's papers
+          onDisciplineClick(clickedBubble as ExtendedDiscipline);
+        } else if (mode === 'papers') {
+          // In paper mode, show the expanded view
+          // === TRANSITION SEQUENCING: Step 1 - Preserve state ===
+          preservedStateRef.current = extendedNodes.map(p => ({ ...p }));
 
-        // === Step 2 - Freeze parent physics ===
-        simulation.stop();
+          // === Step 2 - Freeze parent physics ===
+          simulation.stop();
 
-        // === Step 3 - Set selected paper and trigger expansion ===
-        setSelectedPaper(clickedBubble);
-        setVisualizationMode('MODE_EXPANDING');
-        startExpansionAnimation();
+          // === Step 3 - Set selected paper and trigger expansion ===
+          setSelectedPaper(clickedBubble as ExtendedPaper);
+          setVisualizationMode('MODE_EXPANDING');
+          startExpansionAnimation();
+        }
       }
     };
 
@@ -377,9 +414,9 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
         cancelAnimationFrame(expandAnimationRef.current);
       }
     };
-    // CRITICAL: Only depend on [papers]
+    // CRITICAL: Only depend on data sources and mode
     // DO NOT add isExpanded or visualizationMode - causes infinite loop
-  }, [papers]);
+  }, [papers, disciplines, mode]);
 
   // Update forces when filter changes
   const updateForces = () => {
@@ -392,12 +429,27 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
     // Configure Forces
 
     // Force X: Always map impact score to X position
-    simulation.force("x", d3.forceX<ExtendedPaper>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.5));
+    simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.5));
 
-    // Force Y: Depends on filter
+    // Force Y: Depends on filter and mode
     if (activeFilter === "code") {
-      // Split vertically
-      simulation.force("y", d3.forceY<ExtendedPaper>(d => d.codeAvailable ? height * 0.35 : height * 0.65).strength(0.2));
+      if (mode === "papers") {
+        // Split vertically by code availability (papers mode)
+        simulation.force("y", d3.forceY<ExtendedNode>(d => {
+          const isPaper = 'codeAvailable' in d;
+          return isPaper && d.codeAvailable ? height * 0.35 : height * 0.65;
+        }).strength(0.2));
+      } else {
+        // Split vertically by code availability percentage (disciplines mode)
+        simulation.force("y", d3.forceY<ExtendedNode>(d => {
+          const isDiscipline = 'paperCount' in d && 'codeAvailableCount' in d;
+          if (isDiscipline) {
+            const codeRatio = d.codeAvailableCount / d.paperCount;
+            return height * 0.3 + (1 - codeRatio) * height * 0.4;
+          }
+          return height / 2;
+        }).strength(0.2));
+      }
     } else {
       // Center vertically
       simulation.force("y", d3.forceY(height / 2).strength(0.1));
@@ -405,7 +457,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
     // Collision detection - uses currentRadius for base collision avoidance
     // Manual collision in render loop provides immediate response to expansion
-    simulation.force("collide", d3.forceCollide<ExtendedPaper>(d => (d.currentRadius || d.r || 5) + 2).strength(0.3));
+    simulation.force("collide", d3.forceCollide<ExtendedNode>(d => (d.currentRadius || d.r || 5) + 2).strength(0.3));
 
     // Charge (repulsion)
     simulation.force("charge", d3.forceManyBody().strength(-2));
@@ -415,7 +467,7 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
 
   useEffect(() => {
     updateForces();
-  }, [activeFilter, papers]); // Update when filter changes
+  }, [activeFilter, papers, disciplines, mode]); // Update when filter or data changes
 
   // === EXPANSION ANIMATION FUNCTIONS ===
   // Manages transition from MODE_EXPANDING → MODE_EXPANDED
@@ -556,26 +608,53 @@ export function BubbleHeatmap({ papers, activeFilter }: BubbleHeatmapProps) {
             }}
             className="bg-black/80 backdrop-blur-md border border-white/10 p-4 rounded-lg shadow-xl max-w-xs"
           >
-            <div className="flex flex-col gap-2">
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">
-                {hoveredNode.domain}
-              </span>
-              <h3 className="text-sm font-bold text-white leading-tight">
-                {hoveredNode.title}
-              </h3>
-              <div className="flex items-center gap-3 mt-1 text-xs text-white/70">
-                <div className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
-                  Impact: {Math.round(hoveredNode.impactScore)}
-                </div>
-                {hoveredNode.codeAvailable && (
+            {'paperCount' in hoveredNode ? (
+              // Discipline tooltip
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">
+                  {'yearRange' in hoveredNode ? hoveredNode.yearRange : 'Discipline'}
+                </span>
+                <h3 className="text-sm font-bold text-white leading-tight">
+                  {hoveredNode.name}
+                </h3>
+                <div className="flex items-center gap-3 mt-1 text-xs text-white/70">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                    {hoveredNode.paperCount} papers
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    Impact: {Math.round(hoveredNode.impactScore)}
+                  </div>
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                    Code
+                    {hoveredNode.codeAvailableCount} with code
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            ) : (
+              // Paper tooltip
+              <div className="flex flex-col gap-2">
+                <span className="text-xs font-semibold text-blue-400 uppercase tracking-wide">
+                  {'domain' in hoveredNode ? hoveredNode.domain : 'Paper'}
+                </span>
+                <h3 className="text-sm font-bold text-white leading-tight">
+                  {'title' in hoveredNode ? hoveredNode.title : 'Unknown'}
+                </h3>
+                <div className="flex items-center gap-3 mt-1 text-xs text-white/70">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    Impact: {Math.round(hoveredNode.impactScore)}
+                  </div>
+                  {'codeAvailable' in hoveredNode && hoveredNode.codeAvailable && (
+                    <div className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                      Code
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

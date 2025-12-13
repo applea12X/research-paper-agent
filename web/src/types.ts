@@ -14,4 +14,21 @@ export interface Paper {
   r?: number; // Radius
 }
 
+export interface Discipline {
+  id: string;
+  name: string;
+  yearRange: string; // e.g., "2020-2022"
+  startYear: number;
+  endYear: number;
+  impactScore: number; // Average impact of papers in this discipline
+  paperCount: number;
+  codeAvailableCount: number; // Number of papers with code available
+  // Simulation properties
+  x?: number;
+  y?: number;
+  vx?: number;
+  vy?: number;
+  r?: number; // Radius
+}
+
 export type FilterType = "impact" | "code";
