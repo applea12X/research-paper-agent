@@ -447,15 +447,29 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
           return isPaper && d.codeAvailable ? height * 0.35 : height * 0.65;
         }).strength(0.3)); // Strong vertical positioning
       } else {
-        // Split vertically by code availability percentage (disciplines mode)
+        // Split vertically by exact code availability count (disciplines mode)
+        // First, find the min and max code counts for scaling
+        const disciplineNodes = (disciplines || []) as ExtendedDiscipline[];
+        const codeCounts = disciplineNodes.map(d => d.codeAvailableCount);
+        const minCode = Math.min(...codeCounts);
+        const maxCode = Math.max(...codeCounts);
+
         simulation.force("y", d3.forceY<ExtendedNode>(d => {
           const isDiscipline = 'paperCount' in d && 'codeAvailableCount' in d;
           if (isDiscipline) {
-            const codeRatio = d.codeAvailableCount / d.paperCount;
-            return height * 0.3 + (1 - codeRatio) * height * 0.4;
+            // Map code count to Y position
+            // More papers with code → higher Y position (top, towards "Code Available")
+            // Fewer papers with code → lower Y position (bottom, towards "No Code")
+            const codeCount = d.codeAvailableCount;
+            if (maxCode === minCode) {
+              return height / 2; // All same, center them
+            }
+            // Normalize: 0 (min code) → 1.0, 1 (max code) → 0.0
+            const normalized = 1 - ((codeCount - minCode) / (maxCode - minCode));
+            return height * 0.35 + normalized * height * 0.3;
           }
           return height / 2;
-        }).strength(0.3)); // Strong vertical positioning
+        }).strength(0.8));
       }
     } else {
       // Center vertically - very strong force for tight horizontal line
