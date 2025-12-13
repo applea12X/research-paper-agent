@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { BubbleHeatmap } from "@/components/BubbleHeatmap";
+import { DisciplineSummaryPanel } from "@/components/DisciplineSummaryPanel";
 import { MOCK_PAPERS, MOCK_DISCIPLINES, getPapersByDiscipline } from "@/data/papers";
 import { FilterType, Discipline } from "@/types";
 import { ArrowLeft } from "lucide-react";
@@ -29,48 +30,68 @@ export default function Home() {
     MOCK_DISCIPLINES.map(d => d.name)
   );
 
+  const isPanelOpen = selectedDiscipline !== null;
 
   return (
-    <main className="min-h-screen bg-black text-white selection:bg-blue-500/30 m-0">
-      <Navigation
-        activeFilters={activeFilters}
-        onFilterChange={setActiveFilters}
-        onToggleSidebar={() => setIsSidebarOpen(true)}
-      />
-
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+    <main className="min-h-screen bg-black text-white selection:bg-blue-500/30 m-0 relative">
+      {/* Left Panel - Discipline Summary */}
+      <DisciplineSummaryPanel
+        discipline={selectedDiscipline}
         papers={currentPapers}
+        isOpen={isPanelOpen}
       />
 
-      {/* Back button when viewing a discipline's papers */}
-      {selectedDiscipline && (
-        <button
-          onClick={handleBackToDisciplines}
-          className="fixed top-6 left-32 z-10 flex items-center gap-2.5 px-5 py-3.5 bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-2xl transition-all duration-200 active:scale-95 shadow-lg group"
-        >
-          <ArrowLeft className="w-4 h-4 text-white/80 group-hover:text-white transition-colors" />
-          <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">Back to Disciplines</span>
-        </button>
-      )}
+      {/* Main Content Container */}
+      <div className="min-h-screen w-full">
+        <Navigation
+          activeFilters={activeFilters}
+          onFilterChange={setActiveFilters}
+          onToggleSidebar={() => setIsSidebarOpen(true)}
+        />
 
-      {/* Show discipline name when viewing papers */}
-      {selectedDiscipline && (
-        <div className="fixed top-28 left-1/2 -translate-x-1/2 z-10 px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg">
-          <h2 className="text-lg font-semibold text-white text-center">{selectedDiscipline.name}</h2>
-          <p className="text-xs text-white/50 text-center mt-1">{selectedDiscipline.yearRange} • {currentPapers.length} papers</p>
-        </div>
-      )}
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          papers={currentPapers}
+        />
 
-      <BubbleHeatmap
-        papers={selectedDiscipline ? currentPapers : undefined}
-        disciplines={selectedDiscipline ? undefined : MOCK_DISCIPLINES}
-        activeFilters={activeFilters}
-        mode={selectedDiscipline ? "papers" : "disciplines"}
-        onDisciplineClick={handleDisciplineClick}
-        allowedCategories={allowedCategories}
-      />
+        {/* Back button when viewing a discipline's papers */}
+        {selectedDiscipline && (
+          <button
+            onClick={handleBackToDisciplines}
+            className="fixed top-6 z-10 flex items-center gap-2.5 px-5 py-3.5 bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-2xl transition-all duration-200 active:scale-95 shadow-lg group"
+            style={{
+              left: isPanelOpen ? 'calc(384px + 1.5rem)' : '1.5rem'
+            }}
+          >
+            <ArrowLeft className="w-4 h-4 text-white/80 group-hover:text-white transition-colors" />
+            <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">Back to Disciplines</span>
+          </button>
+        )}
+
+        {/* Show discipline name when viewing papers */}
+        {selectedDiscipline && (
+          <div
+            className="fixed top-28 z-10 px-8 py-4 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-lg transition-all duration-300"
+            style={{
+              left: isPanelOpen ? 'calc(384px + 50%)' : '50%',
+              transform: 'translateX(-50%)'
+            }}
+          >
+            <h2 className="text-lg font-semibold text-white text-center">{selectedDiscipline.name}</h2>
+            <p className="text-xs text-white/50 text-center mt-1">{selectedDiscipline.yearRange} • {currentPapers.length} papers</p>
+          </div>
+        )}
+
+        <BubbleHeatmap
+          papers={selectedDiscipline ? currentPapers : undefined}
+          disciplines={selectedDiscipline ? undefined : MOCK_DISCIPLINES}
+          activeFilters={activeFilters}
+          mode={selectedDiscipline ? "papers" : "disciplines"}
+          onDisciplineClick={handleDisciplineClick}
+          allowedCategories={allowedCategories}
+        />
+      </div>
     </main>
   );
 }
