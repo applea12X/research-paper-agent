@@ -28,8 +28,25 @@ MAX_TEXT_LENGTH = 8000  # Limit text length for LLM processing
 BATCH_SIZE = 10  # Process in batches
 SAVE_INTERVAL = 50  # Save progress every N papers
 
-# Extraction prompt template
-EXTRACTION_PROMPT = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+# System role definition
+SYSTEM_ROLE = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+
+Your responsibilities:
+1. Identify the primary academic field (correct the suggested field if needed)
+2. Detect ML usage - both explicit (models, algorithms, training) and implicit (automation, prediction, optimization)
+3. Validate ML relevance - check for keyword stuffing vs. substantive use
+4. Classify ML impact type and maturity level
+5. Extract additional research impact metrics
+
+CRITICAL RULES:
+- Be conservative; do not overstate ML importance
+- If ML keywords are present but not substantively used, mark is_keyword_stuffing as true
+- Only list frameworks/datasets/models if they are ACTUALLY USED, not just cited
+- Use precise academic language
+- If ML impact is weak or peripheral, state this explicitly in ml_role_description"""
+
+# User prompt template
+USER_PROMPT = """Analyze the following research paper and extract structured information.
 
 Paper ID: {paper_id}
 Year: {year}
@@ -38,18 +55,10 @@ Suggested Field: {field}
 Paper Text (truncated if needed):
 {text}
 
-ANALYSIS PROCESS:
-1. Identify the primary academic field (correct the suggested field if needed).
-2. Detect ML usage - both explicit (models, algorithms, training) and implicit (automation, prediction, optimization).
-3. Validate ML relevance - check for keyword stuffing vs. substantive use.
-4. Classify ML impact type and maturity level.
-5. Extract additional research impact metrics.
-
 Extract the following information in valid JSON format:
 
 {{
   "primary_field": "The actual primary academic field (may differ from suggested)",
-
   "ml_impact_analysis": {{
     "has_ml_usage": true/false,
     "ml_usage_type": "explicit|implicit|minimal|none",
@@ -104,13 +113,6 @@ Extract the following information in valid JSON format:
   }}
 }}
 
-CRITICAL RULES:
-- Be conservative; do not overstate ML importance
-- If ML keywords are present but not substantively used, mark is_keyword_stuffing as true
-- Only list frameworks/datasets/models if they are ACTUALLY USED, not just cited
-- Use precise academic language
-- If ML impact is weak or peripheral, state this explicitly in ml_role_description
-
 Return ONLY valid JSON. If information is not found, use null or empty arrays."""
 
 
@@ -144,15 +146,16 @@ def check_ollama_available():
         return False
 
 
-def call_ollama(prompt: str, max_retries: int = 3) -> Optional[Dict]:
-    """Call Ollama API to extract information."""
+def call_ollama(system_role: str, user_prompt: str, max_retries: int = 3) -> Optional[Dict]:
+    """Call Ollama API to extract information with system and user roles."""
     for attempt in range(max_retries):
         try:
             response = requests.post(
                 f"{OLLAMA_BASE_URL}/api/generate",
                 json={
                     "model": OLLAMA_MODEL,
-                    "prompt": prompt,
+                    "system": system_role,
+                    "prompt": user_prompt,
                     "stream": False,
                     "format": "json",
                     "options": {
@@ -246,16 +249,16 @@ def extract_paper_info(paper: Dict, category: str) -> Optional[Dict]:
     # Truncate text if needed
     truncated_text = truncate_text(text)
 
-    # Build prompt
-    prompt = EXTRACTION_PROMPT.format(
+    # Build user prompt
+    user_prompt = USER_PROMPT.format(
         paper_id=paper_id,
         year=year,
         field=category,
         text=truncated_text
     )
 
-    # Call Ollama
-    extracted = call_ollama(prompt)
+    # Call Ollama with system role and user prompt
+    extracted = call_ollama(SYSTEM_ROLE, user_prompt)
 
     if extracted:
         # Add metadata

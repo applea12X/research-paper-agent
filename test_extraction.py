@@ -13,16 +13,24 @@ OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_MODEL = "llama3.1:8b"
 INPUT_DIR = Path("data/combined_compressed")
 
-EXTRACTION_PROMPT = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+SYSTEM_ROLE = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+
+Your responsibilities:
+1. Identify the primary academic field
+2. Detect ML usage - both explicit and implicit
+3. Validate ML relevance - check for keyword stuffing vs. substantive use
+4. Classify ML impact type and maturity level
+
+CRITICAL RULES:
+- Be conservative about ML importance
+- Only list tools if ACTUALLY USED, not just mentioned
+- Mark is_keyword_stuffing as true if ML keywords are present but not substantively used
+- Use precise academic language"""
+
+USER_PROMPT = """Analyze the following research paper and extract structured information.
 
 Paper Text:
 {text}
-
-ANALYSIS PROCESS:
-1. Identify the primary academic field.
-2. Detect ML usage - both explicit and implicit.
-3. Validate ML relevance - check for keyword stuffing vs. substantive use.
-4. Classify ML impact type and maturity level.
 
 Extract the following information in valid JSON format:
 
@@ -142,8 +150,8 @@ def extract_from_paper(paper):
     # Get text (truncate if too long)
     text = paper.get('text', '')[:8000]
 
-    # Build prompt
-    prompt = EXTRACTION_PROMPT.format(text=text)
+    # Build user prompt
+    user_prompt = USER_PROMPT.format(text=text)
 
     print(f"  Sending {len(text):,} characters to Ollama...")
 
@@ -152,7 +160,8 @@ def extract_from_paper(paper):
             f"{OLLAMA_BASE_URL}/api/generate",
             json={
                 "model": OLLAMA_MODEL,
-                "prompt": prompt,
+                "system": SYSTEM_ROLE,
+                "prompt": user_prompt,
                 "stream": False,
                 "format": "json",
                 "options": {
