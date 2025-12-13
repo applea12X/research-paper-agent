@@ -3,6 +3,7 @@ dataset/
 
 # Ignore ALL data (nothing in data/ will be pushed to GitHub)
 data/
+node_modules/
 
 # data
 *.json.gz
