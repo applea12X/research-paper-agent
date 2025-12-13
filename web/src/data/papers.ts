@@ -1,15 +1,6 @@
-export interface Paper {
-  id: string;
-  title: string;
-  impactScore: number; // 0 to 100
-  codeAvailable: boolean;
-  year: number;
-  citations: number;
-  domain: string;
-  x?: number; // For visualization positioning
-  y?: number;
-  r?: number; // Radius
-}
+import { Paper } from "@/types";
+
+export { type Paper };
 
 const domains = [
   "Computer Vision",

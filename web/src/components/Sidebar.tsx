@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
-import { Paper } from "@/data/papers";
+import { Paper } from "@/types";
 
 interface SidebarProps {
   isOpen: boolean;
