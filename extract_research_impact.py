@@ -29,28 +29,26 @@ BATCH_SIZE = 10  # Process in batches
 SAVE_INTERVAL = 50  # Save progress every N papers
 
 # System role definition
-SYSTEM_ROLE = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+SYSTEM_ROLE = """You are an expert academic analyst specializing in quantifying how machine learning (ML) contributes to scientific breakthroughs and discovery efficiency.
 
-Your responsibilities:
-1. Identify the primary academic field (correct the suggested field if needed)
-2. Detect ML usage - both explicit (models, algorithms, training) and implicit (automation, prediction, optimization)
-3. Validate ML relevance - check for keyword stuffing vs. substantive use
-4. Classify ML impact type and maturity level
-5. Extract additional research impact metrics
+Your task is to measure ML's actual contribution to research outcomes with three key metrics:
+1. Attribution Scoring: What % of the breakthrough comes from ML vs. domain insight?
+2. Acceleration Metrics: Did ML speed discovery by months/years compared to traditional methods?
+3. Efficiency Measures: Did ML reduce cost, time, or resources per discovery?
 
 CRITICAL RULES:
-- Be conservative; do not overstate ML importance
-- If ML keywords are present but not substantively used, mark is_keyword_stuffing as true
-- Only list frameworks/datasets/models if they are ACTUALLY USED, not just cited
-- Use precise academic language
-- If ML impact is weak or peripheral, state this explicitly in ml_role_description"""
+- Be conservative and evidence-based; do not overstate ML importance
+- Distinguish ML contribution from domain expertise contribution
+- Look for explicit evidence of acceleration, cost reduction, or capability enabling
+- If ML is mentioned but not central to outcomes, mark minimal impact
+- Use precise academic language based on what the paper explicitly demonstrates"""
 
 # User prompt template
-USER_PROMPT = """Analyze the following research paper and extract structured information.
+USER_PROMPT = """Analyze how machine learning contributed to this research paper's outcomes.
 
 Paper ID: {paper_id}
 Year: {year}
-Suggested Field: {field}
+Field: {field}
 
 Paper Text (truncated if needed):
 {text}
@@ -58,62 +56,40 @@ Paper Text (truncated if needed):
 Extract the following information in valid JSON format:
 
 {{
-  "primary_field": "The actual primary academic field (may differ from suggested)",
-  "ml_impact_analysis": {{
+  "ml_impact_quantification": {{
     "has_ml_usage": true/false,
-    "ml_usage_type": "explicit|implicit|minimal|none",
-    "is_keyword_stuffing": true/false,
-    "ml_role_description": "Concrete description of how ML is actually used or why its role is limited",
-    "impact_types": ["analytical_enhancement", "predictive_modeling", "decision_support", "discovery", "optimization", "representation_learning", "measurement_improvement"],
-    "maturity_level": "exploratory|applied|core|field_shaping|none",
-    "impact_on_field": "2-4 sentence expert summary of how ML changes or fails to change practices in this field",
-    "key_takeaway": "One-sentence insight for cross-disciplinary audience",
-    "frameworks": ["TensorFlow", "PyTorch", etc. - ONLY if actually used, not just mentioned"],
-    "compute_resources": ["GPU types, platforms - ONLY if substantively discussed"],
-    "datasets": ["Specific datasets - ONLY if used for training/evaluation"],
-    "models": ["Specific ML models/architectures - ONLY if implemented or evaluated"]
-  }},
+    "ml_contribution_level": "none|minimal|moderate|substantial|critical",
 
-  "citations": {{
-    "cited_papers": ["Sample of key paper titles/authors from references"],
-    "citation_count_estimate": "estimated number"
-  }},
+    "attribution_scoring": {{
+      "ml_contribution_percent": 0-100,
+      "domain_insight_percent": 0-100,
+      "explanation": "Evidence-based explanation of ML vs domain contributions"
+    }},
 
-  "reproducibility": {{
-    "code_available": true/false,
-    "code_url": "URL if mentioned",
-    "data_available": true/false,
-    "data_url": "URL if mentioned",
-    "has_supplementary": true/false,
-    "mentions_replication": true/false
-  }},
+    "acceleration_metrics": {{
+      "provides_acceleration": true/false,
+      "estimated_speedup": "e.g., '6 months faster', '10x faster than traditional', 'enabled previously impossible task'",
+      "comparison_baseline": "What method ML was compared against, if any",
+      "evidence": "Specific claims from paper about speed/time improvements"
+    }},
 
-  "research_outcomes": {{
-    "has_clinical_trial": true/false,
-    "clinical_trial_ids": ["NCT numbers"],
-    "has_patent": true/false,
-    "patent_numbers": ["patent numbers"],
-    "mentions_retraction": true/false,
-    "mentions_correction": true/false
-  }},
+    "efficiency_measures": {{
+      "improves_efficiency": true/false,
+      "cost_reduction": "e.g., '$100K saved', '50% less compute', 'reduced from 1000 to 100 experiments'",
+      "resource_optimization": "Types of resources saved (compute, labor, materials, etc.)",
+      "evidence": "Specific efficiency claims from paper"
+    }},
 
-  "impact_indicators": {{
-    "mentions_media_coverage": true/false,
-    "mentions_policy_influence": true/false,
-    "mentions_industry_adoption": true/false,
-    "real_world_applications": ["concrete applications mentioned"]
-  }},
-
-  "additional_info": {{
-    "funding_sources": ["NSF", "NIH", etc.],
-    "collaborations": ["institutions", "companies"],
-    "keywords": ["key technical terms"],
-    "methodology": "brief description",
-    "main_findings": "brief summary"
+    "breakthrough_analysis": {{
+      "enables_new_capability": true/false,
+      "capability_description": "What became possible that wasn't before",
+      "is_incremental_improvement": true/false,
+      "impact_summary": "Overall assessment of ML's role in this research"
+    }}
   }}
 }}
 
-Return ONLY valid JSON. If information is not found, use null or empty arrays."""
+Return ONLY valid JSON. Use null for unavailable information. Be conservative in scoring - only high scores if paper provides explicit evidence."""
 
 
 def setup_output_dir():

@@ -41,82 +41,62 @@ def load_extracted_data(category: str) -> List[Dict]:
     return papers
 
 
-def analyze_ml_adoption(papers: List[Dict]) -> Dict:
-    """Analyze ML impact across papers with rigorous validation."""
-    frameworks = Counter()
-    compute_resources = Counter()
-    datasets = Counter()
-    models = Counter()
-    impact_types = Counter()
-    maturity_levels = Counter()
-    ml_usage_types = Counter()
+def analyze_ml_impact_quantification(papers: List[Dict]) -> Dict:
+    """Analyze ML impact quantification across papers."""
+    contribution_levels = Counter()
 
     papers_with_ml = 0
-    papers_with_keyword_stuffing = 0
-    papers_by_maturity = {
-        'exploratory': 0,
-        'applied': 0,
-        'core': 0,
-        'field_shaping': 0,
-        'none': 0
-    }
+    papers_with_acceleration = 0
+    papers_with_efficiency = 0
+    papers_with_new_capability = 0
+
+    attribution_scores = []
 
     for paper in papers:
-        # Try new structure first, fall back to old
-        ml_analysis = paper.get('ml_impact_analysis', paper.get('ml_adoption', {}))
+        ml_quant = paper.get('ml_impact_quantification', {})
 
-        if ml_analysis:
-            # New structure
-            if ml_analysis.get('has_ml_usage'):
-                papers_with_ml += 1
+        if ml_quant.get('has_ml_usage'):
+            papers_with_ml += 1
 
-            if ml_analysis.get('is_keyword_stuffing'):
-                papers_with_keyword_stuffing += 1
+        level = ml_quant.get('ml_contribution_level', 'none')
+        contribution_levels[level] += 1
 
-            usage_type = ml_analysis.get('ml_usage_type', 'unknown')
-            if usage_type:
-                ml_usage_types[usage_type] += 1
+        # Attribution scoring
+        attribution = ml_quant.get('attribution_scoring', {})
+        ml_percent = attribution.get('ml_contribution_percent')
+        if ml_percent is not None:
+            attribution_scores.append(ml_percent)
 
-            maturity = ml_analysis.get('maturity_level', 'none')
-            if maturity in papers_by_maturity:
-                papers_by_maturity[maturity] += 1
-            maturity_levels[maturity] += 1
+        # Acceleration metrics
+        acceleration = ml_quant.get('acceleration_metrics', {})
+        if acceleration.get('provides_acceleration'):
+            papers_with_acceleration += 1
 
-            for impact_type in ml_analysis.get('impact_types', []):
-                if impact_type:
-                    impact_types[impact_type] += 1
+        # Efficiency measures
+        efficiency = ml_quant.get('efficiency_measures', {})
+        if efficiency.get('improves_efficiency'):
+            papers_with_efficiency += 1
 
-            for fw in ml_analysis.get('frameworks', []):
-                if fw:
-                    frameworks[fw] += 1
-
-            for comp in ml_analysis.get('compute_resources', []):
-                if comp:
-                    compute_resources[comp] += 1
-
-            for ds in ml_analysis.get('datasets', []):
-                if ds:
-                    datasets[ds] += 1
-
-            for model in ml_analysis.get('models', []):
-                if model:
-                    models[model] += 1
+        # Breakthrough analysis
+        breakthrough = ml_quant.get('breakthrough_analysis', {})
+        if breakthrough.get('enables_new_capability'):
+            papers_with_new_capability += 1
 
     total = len(papers)
 
     return {
-        'papers_with_ml_usage': papers_with_ml,
-        'papers_with_keyword_stuffing': papers_with_keyword_stuffing,
-        'keyword_stuffing_rate': papers_with_keyword_stuffing / total if total else 0,
         'total_papers': total,
+        'papers_with_ml_usage': papers_with_ml,
         'ml_usage_rate': papers_with_ml / total if total else 0,
-        'ml_usage_types': dict(ml_usage_types.most_common()),
-        'maturity_distribution': papers_by_maturity,
-        'impact_types': dict(impact_types.most_common(10)),
-        'top_frameworks': dict(frameworks.most_common(20)),
-        'top_compute_resources': dict(compute_resources.most_common(20)),
-        'top_datasets': dict(datasets.most_common(20)),
-        'top_models': dict(models.most_common(20))
+        'contribution_level_distribution': dict(contribution_levels.most_common()),
+        'papers_with_acceleration': papers_with_acceleration,
+        'acceleration_rate': papers_with_acceleration / total if total else 0,
+        'papers_with_efficiency': papers_with_efficiency,
+        'efficiency_rate': papers_with_efficiency / total if total else 0,
+        'papers_with_new_capability': papers_with_new_capability,
+        'new_capability_rate': papers_with_new_capability / total if total else 0,
+        'average_ml_attribution': sum(attribution_scores) / len(attribution_scores) if attribution_scores else 0,
+        'attribution_scores_count': len(attribution_scores)
     }
 
 
@@ -326,12 +306,7 @@ def analyze_category(category: str) -> Dict:
     analysis = {
         'category': category,
         'total_papers': len(papers),
-        'ml_adoption': analyze_ml_adoption(papers),
-        'reproducibility': analyze_reproducibility(papers),
-        'research_outcomes': analyze_research_outcomes(papers),
-        'impact_indicators': analyze_impact_indicators(papers),
-        'additional_info': analyze_additional_info(papers),
-        'temporal_trends': analyze_temporal_trends(papers)
+        'ml_impact_quantification': analyze_ml_impact_quantification(papers)
     }
 
     return analysis
@@ -342,57 +317,41 @@ def generate_category_report(analysis: Dict, output_file: Path):
     category = analysis['category']
 
     with open(output_file, 'w') as f:
-        f.write(f"# Research Impact Analysis: {category}\n\n")
+        f.write(f"# ML Impact Quantification Report: {category}\n\n")
         f.write(f"Total Papers Analyzed: {analysis['total_papers']:,}\n\n")
 
-        # ML Adoption
-        f.write("## ML Adoption\n\n")
-        ml = analysis['ml_adoption']
-        f.write(f"- Papers with ML adoption: {ml['papers_with_ml_adoption']:,} ")
-        f.write(f"({ml['ml_adoption_rate']:.1%})\n\n")
+        ml_quant = analysis['ml_impact_quantification']
 
-        f.write("### Top Frameworks\n")
-        for fw, count in list(ml['top_frameworks'].items())[:10]:
-            f.write(f"- {fw}: {count}\n")
+        # ML Usage Overview
+        f.write("## ML Usage Overview\n\n")
+        f.write(f"- Papers with ML usage: {ml_quant['papers_with_ml_usage']:,} ")
+        f.write(f"({ml_quant['ml_usage_rate']:.1%})\n\n")
+
+        # Contribution Levels
+        f.write("### ML Contribution Level Distribution\n\n")
+        for level, count in ml_quant['contribution_level_distribution'].items():
+            f.write(f"- {level}: {count:,} papers\n")
         f.write("\n")
 
-        f.write("### Top Datasets\n")
-        for ds, count in list(ml['top_datasets'].items())[:10]:
-            f.write(f"- {ds}: {count}\n")
-        f.write("\n")
+        # Attribution Scoring
+        f.write("## Attribution Scoring\n\n")
+        f.write(f"- Average ML Attribution: {ml_quant['average_ml_attribution']:.1f}%\n")
+        f.write(f"- Papers with Attribution Scores: {ml_quant['attribution_scores_count']:,}\n\n")
 
-        # Reproducibility
-        f.write("## Reproducibility\n\n")
-        repro = analysis['reproducibility']
-        f.write(f"- Code availability: {repro['code_availability_rate']:.1%} ")
-        f.write(f"({repro['papers_with_code']:,} papers)\n")
-        f.write(f"- Data availability: {repro['data_availability_rate']:.1%} ")
-        f.write(f"({repro['papers_with_data']:,} papers)\n")
-        f.write(f"- Supplementary materials: {repro['supplementary_rate']:.1%}\n")
-        f.write(f"- Replication mentioned: {repro['replication_mention_rate']:.1%}\n\n")
+        # Acceleration Metrics
+        f.write("## Acceleration Metrics\n\n")
+        f.write(f"- Papers with Acceleration: {ml_quant['papers_with_acceleration']:,} ")
+        f.write(f"({ml_quant['acceleration_rate']:.1%})\n\n")
 
-        # Research Outcomes
-        f.write("## Research Outcomes\n\n")
-        outcomes = analysis['research_outcomes']
-        f.write(f"- Clinical trials: {outcomes['clinical_trial_rate']:.1%} ")
-        f.write(f"({outcomes['papers_with_clinical_trials']:,} papers)\n")
-        f.write(f"- Patents: {outcomes['patent_rate']:.1%} ")
-        f.write(f"({outcomes['papers_with_patents']:,} papers)\n")
-        f.write(f"- Retractions: {outcomes['retraction_rate']:.1%}\n")
-        f.write(f"- Corrections: {outcomes['correction_rate']:.1%}\n\n")
+        # Efficiency Measures
+        f.write("## Efficiency Measures\n\n")
+        f.write(f"- Papers with Efficiency Improvements: {ml_quant['papers_with_efficiency']:,} ")
+        f.write(f"({ml_quant['efficiency_rate']:.1%})\n\n")
 
-        # Impact Indicators
-        f.write("## Impact Indicators\n\n")
-        impact = analysis['impact_indicators']
-        f.write(f"- Media coverage: {impact['media_coverage_rate']:.1%}\n")
-        f.write(f"- Policy influence: {impact['policy_influence_rate']:.1%}\n")
-        f.write(f"- Industry adoption: {impact['industry_adoption_rate']:.1%}\n\n")
-
-        # Funding
-        f.write("## Top Funding Sources\n\n")
-        for source, count in list(analysis['additional_info']['top_funding_sources'].items())[:10]:
-            f.write(f"- {source}: {count}\n")
-        f.write("\n")
+        # Breakthrough Analysis
+        f.write("## Breakthrough Analysis\n\n")
+        f.write(f"- Papers Enabling New Capabilities: {ml_quant['papers_with_new_capability']:,} ")
+        f.write(f"({ml_quant['new_capability_rate']:.1%})\n\n")
 
     print(f"  ✓ Report saved to {output_file}")
 
@@ -408,28 +367,25 @@ def export_to_csv(all_analyses: List[Dict]):
         writer.writerow([
             'Category',
             'Total Papers',
-            'ML Adoption Rate',
-            'Code Availability Rate',
-            'Data Availability Rate',
-            'Clinical Trial Rate',
-            'Patent Rate',
-            'Media Coverage Rate',
-            'Policy Influence Rate'
+            'ML Usage Rate',
+            'Average ML Attribution %',
+            'Acceleration Rate',
+            'Efficiency Rate',
+            'New Capability Rate'
         ])
 
         # Data
         for analysis in all_analyses:
             if analysis:
+                ml = analysis['ml_impact_quantification']
                 writer.writerow([
                     analysis['category'],
                     analysis['total_papers'],
-                    f"{analysis['ml_adoption']['ml_adoption_rate']:.3f}",
-                    f"{analysis['reproducibility']['code_availability_rate']:.3f}",
-                    f"{analysis['reproducibility']['data_availability_rate']:.3f}",
-                    f"{analysis['research_outcomes']['clinical_trial_rate']:.3f}",
-                    f"{analysis['research_outcomes']['patent_rate']:.3f}",
-                    f"{analysis['impact_indicators']['media_coverage_rate']:.3f}",
-                    f"{analysis['impact_indicators']['policy_influence_rate']:.3f}"
+                    f"{ml['ml_usage_rate']:.3f}",
+                    f"{ml['average_ml_attribution']:.1f}",
+                    f"{ml['acceleration_rate']:.3f}",
+                    f"{ml['efficiency_rate']:.3f}",
+                    f"{ml['new_capability_rate']:.3f}"
                 ])
 
     print(f"\n✓ Summary CSV saved to {csv_file}")

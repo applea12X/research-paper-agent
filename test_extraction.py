@@ -13,21 +13,19 @@ OLLAMA_BASE_URL = "http://localhost:11434"
 OLLAMA_MODEL = "llama3.1:8b"
 INPUT_DIR = Path("data/combined_compressed")
 
-SYSTEM_ROLE = """You are an expert academic analyst specializing in how machine learning (ML) impacts different academic fields. You evaluate papers with peer-review rigor and cross-disciplinary awareness.
+SYSTEM_ROLE = """You are an expert academic analyst specializing in quantifying how machine learning (ML) contributes to scientific breakthroughs and discovery efficiency.
 
-Your responsibilities:
-1. Identify the primary academic field
-2. Detect ML usage - both explicit and implicit
-3. Validate ML relevance - check for keyword stuffing vs. substantive use
-4. Classify ML impact type and maturity level
+Your task is to measure ML's actual contribution with three key metrics:
+1. Attribution Scoring: What % of breakthrough comes from ML vs. domain insight?
+2. Acceleration Metrics: Did ML speed discovery by months/years?
+3. Efficiency Measures: Did ML reduce cost, time, or resources?
 
 CRITICAL RULES:
-- Be conservative about ML importance
-- Only list tools if ACTUALLY USED, not just mentioned
-- Mark is_keyword_stuffing as true if ML keywords are present but not substantively used
-- Use precise academic language"""
+- Be conservative and evidence-based; only high scores with explicit evidence
+- Distinguish ML contribution from domain expertise
+- Look for explicit evidence of acceleration or cost reduction"""
 
-USER_PROMPT = """Analyze the following research paper and extract structured information.
+USER_PROMPT = """Analyze how machine learning contributed to this research paper's outcomes.
 
 Paper Text:
 {text}
@@ -35,58 +33,40 @@ Paper Text:
 Extract the following information in valid JSON format:
 
 {{
-  "primary_field": "The primary academic field",
-  "ml_impact_analysis": {{
+  "ml_impact_quantification": {{
     "has_ml_usage": true/false,
-    "ml_usage_type": "explicit|implicit|minimal|none",
-    "is_keyword_stuffing": true/false,
-    "ml_role_description": "How ML is actually used or why limited",
-    "impact_types": ["analytical_enhancement", "predictive_modeling", etc.],
-    "maturity_level": "exploratory|applied|core|field_shaping|none",
-    "impact_on_field": "Expert summary of ML impact",
-    "key_takeaway": "One-sentence insight",
-    "frameworks": ["ONLY if actually used"],
-    "compute_resources": ["ONLY if substantively discussed"],
-    "datasets": ["ONLY if used for training/evaluation"],
-    "models": ["ONLY if implemented or evaluated"]
-  }},
-  "citations": {{
-    "cited_papers": ["Sample titles/authors"],
-    "citation_count_estimate": "number"
-  }},
-  "reproducibility": {{
-    "code_available": true/false,
-    "code_url": "URL",
-    "data_available": true/false,
-    "data_url": "URL",
-    "has_supplementary": true/false,
-    "mentions_replication": true/false
-  }},
-  "research_outcomes": {{
-    "has_clinical_trial": true/false,
-    "clinical_trial_ids": [],
-    "has_patent": true/false,
-    "patent_numbers": [],
-    "mentions_retraction": true/false,
-    "mentions_correction": true/false
-  }},
-  "impact_indicators": {{
-    "mentions_media_coverage": true/false,
-    "mentions_policy_influence": true/false,
-    "mentions_industry_adoption": true/false,
-    "real_world_applications": []
-  }},
-  "additional_info": {{
-    "funding_sources": [],
-    "collaborations": [],
-    "keywords": [],
-    "methodology": "",
-    "main_findings": ""
+    "ml_contribution_level": "none|minimal|moderate|substantial|critical",
+
+    "attribution_scoring": {{
+      "ml_contribution_percent": 0-100,
+      "domain_insight_percent": 0-100,
+      "explanation": "Evidence-based explanation"
+    }},
+
+    "acceleration_metrics": {{
+      "provides_acceleration": true/false,
+      "estimated_speedup": "e.g., '6 months faster', '10x faster'",
+      "comparison_baseline": "What method ML was compared against",
+      "evidence": "Specific claims from paper"
+    }},
+
+    "efficiency_measures": {{
+      "improves_efficiency": true/false,
+      "cost_reduction": "e.g., '$100K saved', '50% less compute'",
+      "resource_optimization": "Types of resources saved",
+      "evidence": "Specific efficiency claims"
+    }},
+
+    "breakthrough_analysis": {{
+      "enables_new_capability": true/false,
+      "capability_description": "What became possible",
+      "is_incremental_improvement": true/false,
+      "impact_summary": "Overall ML role assessment"
+    }}
   }}
 }}
 
-CRITICAL: Be conservative about ML importance. Only list tools if ACTUALLY USED, not just mentioned.
-Return ONLY valid JSON."""
+Return ONLY valid JSON. Be conservative - only high scores with explicit evidence."""
 
 
 def test_ollama_connection():
@@ -204,13 +184,7 @@ def validate_extraction(extracted):
     print("\nValidating extraction...")
 
     required_fields = [
-        'primary_field',
-        'ml_impact_analysis',
-        'citations',
-        'reproducibility',
-        'research_outcomes',
-        'impact_indicators',
-        'additional_info'
+        'ml_impact_quantification'
     ]
 
     all_valid = True
@@ -228,29 +202,44 @@ def validate_extraction(extracted):
 def display_results(extracted):
     """Display extracted results in a readable format."""
     print("\n" + "=" * 60)
-    print("EXTRACTION RESULTS")
+    print("ML IMPACT QUANTIFICATION RESULTS")
     print("=" * 60)
 
-    # Primary Field
-    print(f"\nPrimary Field: {extracted.get('primary_field', 'Unknown')}")
+    ml_quant = extracted.get('ml_impact_quantification', {})
 
-    # ML Impact Analysis
-    ml_analysis = extracted.get('ml_impact_analysis', {})
-    print("\nML Impact Analysis:")
-    print(f"  Has ML Usage: {ml_analysis.get('has_ml_usage', False)}")
-    print(f"  ML Usage Type: {ml_analysis.get('ml_usage_type', 'unknown')}")
-    print(f"  Keyword Stuffing: {ml_analysis.get('is_keyword_stuffing', False)}")
-    print(f"  Maturity Level: {ml_analysis.get('maturity_level', 'unknown')}")
-    print(f"  ML Role: {ml_analysis.get('ml_role_description', 'N/A')[:100]}...")
-    print(f"  Impact Types: {', '.join(ml_analysis.get('impact_types', [])) or 'None'}")
-    print(f"  Key Takeaway: {ml_analysis.get('key_takeaway', 'N/A')}")
+    print(f"\nML Usage: {ml_quant.get('has_ml_usage', False)}")
+    print(f"Contribution Level: {ml_quant.get('ml_contribution_level', 'unknown')}")
 
-    if ml_analysis.get('frameworks'):
-        print(f"  Frameworks: {', '.join(ml_analysis.get('frameworks', []))}")
-    if ml_analysis.get('datasets'):
-        print(f"  Datasets: {', '.join(ml_analysis.get('datasets', []))}")
-    if ml_analysis.get('models'):
-        print(f"  Models: {', '.join(ml_analysis.get('models', []))}")
+    # Attribution Scoring
+    attribution = ml_quant.get('attribution_scoring', {})
+    print("\n--- Attribution Scoring ---")
+    print(f"  ML Contribution: {attribution.get('ml_contribution_percent', 0)}%")
+    print(f"  Domain Insight: {attribution.get('domain_insight_percent', 0)}%")
+    print(f"  Explanation: {attribution.get('explanation', 'N/A')}")
+
+    # Acceleration Metrics
+    acceleration = ml_quant.get('acceleration_metrics', {})
+    print("\n--- Acceleration Metrics ---")
+    print(f"  Provides Acceleration: {acceleration.get('provides_acceleration', False)}")
+    print(f"  Estimated Speedup: {acceleration.get('estimated_speedup', 'N/A')}")
+    print(f"  Comparison Baseline: {acceleration.get('comparison_baseline', 'N/A')}")
+    print(f"  Evidence: {acceleration.get('evidence', 'N/A')[:100]}...")
+
+    # Efficiency Measures
+    efficiency = ml_quant.get('efficiency_measures', {})
+    print("\n--- Efficiency Measures ---")
+    print(f"  Improves Efficiency: {efficiency.get('improves_efficiency', False)}")
+    print(f"  Cost Reduction: {efficiency.get('cost_reduction', 'N/A')}")
+    print(f"  Resource Optimization: {efficiency.get('resource_optimization', 'N/A')}")
+    print(f"  Evidence: {efficiency.get('evidence', 'N/A')[:100]}...")
+
+    # Breakthrough Analysis
+    breakthrough = ml_quant.get('breakthrough_analysis', {})
+    print("\n--- Breakthrough Analysis ---")
+    print(f"  Enables New Capability: {breakthrough.get('enables_new_capability', False)}")
+    print(f"  Capability: {breakthrough.get('capability_description', 'N/A')}")
+    print(f"  Incremental Improvement: {breakthrough.get('is_incremental_improvement', False)}")
+    print(f"  Impact Summary: {breakthrough.get('impact_summary', 'N/A')}")
 
     # Reproducibility
     repro = extracted.get('reproducibility', {})
