@@ -1,18 +1,24 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
-import { Paper } from "@/types";
+import { X, Home, BarChart3, GitBranch, Search, Zap } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  papers: Paper[]; // Pass top papers or case studies
+  papers: unknown[]; // Keep for compatibility but not used anymore
 }
 
-export function Sidebar({ isOpen, onClose, papers }: SidebarProps) {
-  // Select top 5 high impact papers for case studies
-  const caseStudies = [...papers]
-    .sort((a, b) => b.impactScore - a.impactScore)
-    .slice(0, 5);
+const navigation = [
+  { name: "Home", href: "/", icon: Home },
+  { name: "Case Studies", href: "/case-studies", icon: BarChart3 },
+  { name: "Adoption Dynamics", href: "#", icon: GitBranch, disabled: true },
+  { name: "Quality Trade-offs", href: "#", icon: Zap, disabled: true },
+  { name: "Discovery Traces", href: "#", icon: Search, disabled: true },
+];
+
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const pathname = usePathname();
 
   return (
     <AnimatePresence>
@@ -36,7 +42,7 @@ export function Sidebar({ isOpen, onClose, papers }: SidebarProps) {
             className="fixed top-0 left-0 z-50 h-full w-full max-w-md glass-panel p-6 shadow-2xl"
           >
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold tracking-tight text-white/90">Case Studies</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-white/90">Navigation</h2>
               <button
                 onClick={onClose}
                 className="p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -45,43 +51,49 @@ export function Sidebar({ isOpen, onClose, papers }: SidebarProps) {
               </button>
             </div>
 
-            <div className="space-y-6 overflow-y-auto max-h-[calc(100vh-120px)] custom-scrollbar pr-2">
-              {caseStudies.map((paper) => (
-                <div
-                  key={paper.id}
-                  className="p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors group cursor-pointer"
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                      {paper.domain}
-                    </span>
-                    <span className="text-xs text-white/40">{paper.year}</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white/90 mb-2 group-hover:text-blue-200 transition-colors">
-                    {paper.title}
-                  </h3>
-                  <div className="flex items-center gap-4 text-sm text-white/60">
-                    <div className="flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-red-400"></span>
-                      Impact: {Math.round(paper.impactScore)}
+            <nav className="space-y-2">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                const Icon = item.icon;
+                
+                if (item.disabled) {
+                  return (
+                    <div
+                      key={item.name}
+                      className="flex items-center gap-3 px-4 py-3 text-white/40 cursor-not-allowed"
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="font-medium">{item.name}</span>
+                      <span className="ml-auto text-xs bg-white/10 px-2 py-0.5 rounded-full">
+                        Soon
+                      </span>
                     </div>
-                    {paper.codeAvailable && (
-                      <div className="flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                        Code Available
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-              
-              <div className="p-4 rounded-xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/5">
-                <h4 className="font-medium text-white/80 mb-2">About this Visualization</h4>
-                <p className="text-sm text-white/60 leading-relaxed">
-                  This interactive heatmap explores the relationship between machine learning impact scores and research reproducibility (code availability). 
-                  Entities are positioned by impact magnitude and color-coded to reveal patterns in open science adoption.
-                </p>
-              </div>
+                  );
+                }
+                
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={onClose}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                      isActive
+                        ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                        : "text-white/70 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </nav>
+
+            <div className="mt-8 p-4 rounded-xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/5">
+              <h4 className="font-medium text-white/80 mb-2">AI Research Impact Observatory</h4>
+              <p className="text-sm text-white/60 leading-relaxed">
+                Explore the relationship between machine learning advances and research outcomes through interactive visualizations and case study analysis.
+              </p>
             </div>
           </motion.div>
         </>
