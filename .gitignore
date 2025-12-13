@@ -2,13 +2,17 @@
 dataset/
 
 # Data folders - ignore uncompressed versions
-data/*/
-!data/combined_compressed/
-
-# Ignore individual uncompressed data directories
 data/papers/
 data/combined/
-data/combined_compressed/
 
-# But keep compressed files
-!data/**/*.gz
+# Extracted impact data (large, LLM-generated)
+data/extracted_impact/
+
+# Keep compressed files and analysis results
+data/combined_compressed/
+data/combined_compressed/**/*.gz
+data/analysis/
+data/analysis/**
+
+# Test outputs
+test_extraction_output.json
