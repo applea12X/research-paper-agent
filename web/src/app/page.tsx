@@ -9,7 +9,7 @@ import { FilterType, Discipline } from "@/types";
 import { ArrowLeft } from "lucide-react";
 
 export default function Home() {
-  const [activeFilter, setActiveFilter] = useState<FilterType>("impact");
+  const [activeFilters, setActiveFilters] = useState<FilterType>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
 
@@ -33,8 +33,8 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white selection:bg-blue-500/30 m-0">
       <Navigation
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
+        activeFilters={activeFilters}
+        onFilterChange={setActiveFilters}
         onToggleSidebar={() => setIsSidebarOpen(true)}
         showFilters={!selectedDiscipline}
       />
@@ -67,7 +67,7 @@ export default function Home() {
       <BubbleHeatmap
         papers={selectedDiscipline ? currentPapers : undefined}
         disciplines={selectedDiscipline ? undefined : MOCK_DISCIPLINES}
-        activeFilter={activeFilter}
+        activeFilters={activeFilters}
         mode={selectedDiscipline ? "papers" : "disciplines"}
         onDisciplineClick={handleDisciplineClick}
         allowedCategories={allowedCategories}

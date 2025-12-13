@@ -31,4 +31,5 @@ export interface Discipline {
   r?: number; // Radius
 }
 
-export type FilterType = "impact" | "code";
+export type FilterOption = "impact" | "code";
+export type FilterType = FilterOption[];

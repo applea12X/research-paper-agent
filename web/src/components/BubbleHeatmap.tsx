@@ -7,7 +7,7 @@ import { X } from "lucide-react";
 interface BubbleHeatmapProps {
   papers?: Paper[];
   disciplines?: Discipline[];
-  activeFilter: FilterType;
+  activeFilters: FilterType;
   mode: "papers" | "disciplines";
   onDisciplineClick?: (discipline: Discipline) => void;
   allowedCategories?: string[];
@@ -26,7 +26,7 @@ interface ExtendedDiscipline extends Discipline {
 
 type ExtendedNode = ExtendedPaper | ExtendedDiscipline;
 
-export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisciplineClick, allowedCategories }: BubbleHeatmapProps) {
+export function BubbleHeatmap({ papers, disciplines, activeFilters, mode, onDisciplineClick, allowedCategories }: BubbleHeatmapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const simulationRef = useRef<d3.Simulation<ExtendedNode, undefined> | null>(null);
@@ -433,22 +433,32 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
 
     const simulation = simulationRef.current;
 
-    // Configure Forces
+    // Determine which view to show based on active filters
+    const hasCodeFilter = activeFilters.includes("code");
+    const hasImpactFilter = activeFilters.includes("impact");
+    const hasBothFilters = hasCodeFilter && hasImpactFilter;
 
-    // Force X: Very weak for maximum horizontal spread based on impact score
-    simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.04)); // Further reduced to 0.04 for even more horizontal freedom
+    // Configure Forces based on active filters
+    if (hasImpactFilter && !hasCodeFilter) {
+      // Only ML Impact filter: Split horizontally into two clumps (<=50 left, >50 right)
+      simulation.force("x", d3.forceX<ExtendedNode>(d => {
+        return d.impactScore <= 50 ? width * 0.30 : width * 0.70;
+      }).strength(0.15));
 
-    // Force Y: Strong to keep vertically tight and centered
-    if (activeFilter === "code") {
+      // Center vertically
+      simulation.force("y", d3.forceY(height / 2).strength(0.20));
+    } else if (hasCodeFilter && !hasImpactFilter) {
+      // Only Code Availability filter: Split vertically, spread horizontally by impact
+      simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.04));
+
       if (mode === "papers") {
         // Split vertically by code availability (papers mode)
         simulation.force("y", d3.forceY<ExtendedNode>(d => {
           const isPaper = 'codeAvailable' in d;
           return isPaper && d.codeAvailable ? height * 0.35 : height * 0.65;
-        }).strength(0.25)); // Increased from 0.15 to 0.25 for tighter vertical grouping
+        }).strength(0.25));
       } else {
         // Split vertically by exact code availability count (disciplines mode)
-        // First, find the min and max code counts for scaling
         const disciplineNodes = (disciplines || []) as ExtendedDiscipline[];
         const codeCounts = disciplineNodes.map(d => d.codeAvailableCount);
         const minCode = Math.min(...codeCounts);
@@ -457,14 +467,40 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
         simulation.force("y", d3.forceY<ExtendedNode>(d => {
           const isDiscipline = 'paperCount' in d && 'codeAvailableCount' in d;
           if (isDiscipline) {
-            // Map code count to Y position
-            // More papers with code → higher Y position (top, towards "Code Available")
-            // Fewer papers with code → lower Y position (bottom, towards "No Code")
             const codeCount = d.codeAvailableCount;
             if (maxCode === minCode) {
-              return height / 2; // All same, center them
+              return height / 2;
             }
-            // Normalize: 0 (min code) → 1.0, 1 (max code) → 0.0
+            const normalized = 1 - ((codeCount - minCode) / (maxCode - minCode));
+            return height * 0.35 + normalized * height * 0.3;
+          }
+          return height / 2;
+        }).strength(0.8));
+      }
+    } else if (hasBothFilters) {
+      // Both filters: Split horizontally by ML impact AND vertically by code availability
+      simulation.force("x", d3.forceX<ExtendedNode>(d => {
+        return d.impactScore <= 50 ? width * 0.30 : width * 0.70;
+      }).strength(0.15));
+
+      if (mode === "papers") {
+        simulation.force("y", d3.forceY<ExtendedNode>(d => {
+          const isPaper = 'codeAvailable' in d;
+          return isPaper && d.codeAvailable ? height * 0.35 : height * 0.65;
+        }).strength(0.25));
+      } else {
+        const disciplineNodes = (disciplines || []) as ExtendedDiscipline[];
+        const codeCounts = disciplineNodes.map(d => d.codeAvailableCount);
+        const minCode = Math.min(...codeCounts);
+        const maxCode = Math.max(...codeCounts);
+
+        simulation.force("y", d3.forceY<ExtendedNode>(d => {
+          const isDiscipline = 'paperCount' in d && 'codeAvailableCount' in d;
+          if (isDiscipline) {
+            const codeCount = d.codeAvailableCount;
+            if (maxCode === minCode) {
+              return height / 2;
+            }
             const normalized = 1 - ((codeCount - minCode) / (maxCode - minCode));
             return height * 0.35 + normalized * height * 0.3;
           }
@@ -472,19 +508,20 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
         }).strength(0.8));
       }
     } else {
-      // Center vertically - very strong force for tight horizontal band
-      simulation.force("y", d3.forceY(height / 2).strength(0.20)); // Increased from 0.12 to 0.20 for minimal vertical spread
+      // No filters: Default view - spread horizontally by impact score, centered vertically
+      simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.04));
+      simulation.force("y", d3.forceY(height / 2).strength(0.20));
     }
-    simulation.force("collide", d3.forceCollide<ExtendedNode>(d => (d.currentRadius || d.r || 5) + 12).strength(0.7)); // Increased padding from 6 to 12, strength from 0.5 to 0.7
 
-    simulation.force("charge", d3.forceManyBody().strength(-20)); // Increased repulsion from -6 to -20
+    simulation.force("collide", d3.forceCollide<ExtendedNode>(d => (d.currentRadius || d.r || 5) + 12).strength(0.7));
+    simulation.force("charge", d3.forceManyBody().strength(-20));
 
     simulation.alpha(0.5).restart();
   };
 
   useEffect(() => {
     updateForces();
-  }, [activeFilter, papers, disciplines, mode]); // Update when filter or data changes
+  }, [activeFilters, papers, disciplines, mode]); // Update when filter or data changes
 
   // === EXPANSION ANIMATION FUNCTIONS ===
   // Manages transition from MODE_EXPANDING → MODE_EXPANDED
@@ -580,9 +617,53 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
           className="absolute inset-0 w-full h-full cursor-crosshair"
         />
 
-        {/* Labels for Code Availability Filter */}
+        {/* Labels for Split Views */}
         <AnimatePresence>
-          {activeFilter === "code" && (
+          {activeFilters.includes("impact") && !activeFilters.includes("code") && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 pointer-events-none"
+            >
+              <div className="absolute top-1/2 left-[30%] -translate-x-1/2 -translate-y-1/2 text-white/30 text-sm font-medium tracking-wider uppercase">
+                Low ML Impact (≤50)
+              </div>
+              <div className="absolute top-1/2 left-[70%] -translate-x-1/2 -translate-y-1/2 text-white/30 text-sm font-medium tracking-wider uppercase">
+                High ML Impact (&gt;50)
+              </div>
+              {/* Vertical divider line */}
+              <div className="absolute top-0 left-1/2 w-px h-full bg-white/5 border-l border-dashed border-white/10" />
+            </motion.div>
+          )}
+          {activeFilters.includes("code") && activeFilters.includes("impact") && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 pointer-events-none"
+            >
+              {/* Vertical labels for code availability */}
+              <div className="absolute top-[35%] left-8 text-white/30 text-sm font-medium tracking-wider uppercase -translate-y-1/2">
+                Code Available
+              </div>
+              <div className="absolute top-[65%] left-8 text-white/30 text-sm font-medium tracking-wider uppercase -translate-y-1/2">
+                No Code
+              </div>
+              {/* Horizontal labels for ML impact */}
+              <div className="absolute top-8 left-[30%] -translate-x-1/2 text-white/30 text-xs font-medium tracking-wider uppercase">
+                Low ML (≤50)
+              </div>
+              <div className="absolute top-8 left-[70%] -translate-x-1/2 text-white/30 text-xs font-medium tracking-wider uppercase">
+                High ML (&gt;50)
+              </div>
+              {/* Horizontal divider line */}
+              <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 border-t border-dashed border-white/10" />
+              {/* Vertical divider line */}
+              <div className="absolute top-0 left-1/2 w-px h-full bg-white/5 border-l border-dashed border-white/10" />
+            </motion.div>
+          )}
+          {activeFilters.includes("code") && !activeFilters.includes("impact") && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -595,7 +676,7 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
               <div className="absolute top-[65%] left-8 text-white/30 text-sm font-medium tracking-wider uppercase -translate-y-1/2">
                 No Code
               </div>
-              {/* Divider line */}
+              {/* Horizontal divider line */}
               <div className="absolute top-1/2 left-0 w-full h-px bg-white/5 border-t border-dashed border-white/10" />
             </motion.div>
           )}

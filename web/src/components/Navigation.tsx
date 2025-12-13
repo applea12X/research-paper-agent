@@ -1,16 +1,26 @@
 import { Menu } from "lucide-react";
 import { clsx } from "clsx";
-import { motion } from "framer-motion";
-import { FilterType } from "@/types";
+import { motion, AnimatePresence } from "framer-motion";
+import { FilterType, FilterOption } from "@/types";
 
 interface NavigationProps {
   onToggleSidebar: () => void;
-  activeFilter: FilterType;
-  onFilterChange: (filter: FilterType) => void;
+  activeFilters: FilterType;
+  onFilterChange: (filters: FilterType) => void;
   showFilters?: boolean;
 }
 
-export function Navigation({ onToggleSidebar, activeFilter, onFilterChange, showFilters = true }: NavigationProps) {
+export function Navigation({ onToggleSidebar, activeFilters, onFilterChange, showFilters = true }: NavigationProps) {
+  const handleFilterToggle = (filter: FilterOption) => {
+    if (activeFilters.includes(filter)) {
+      // Remove filter if already active
+      onFilterChange(activeFilters.filter(f => f !== filter));
+    } else {
+      // Add filter if not active
+      onFilterChange([...activeFilters, filter]);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-8 py-6 pointer-events-none">
       {/* Left: Hamburger */}
@@ -29,13 +39,13 @@ export function Navigation({ onToggleSidebar, activeFilter, onFilterChange, show
         <div className="pointer-events-auto flex gap-2 p-1.5 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-lg">
           <FilterButton
             label="ML Impact"
-            isActive={activeFilter === "impact"}
-            onClick={() => onFilterChange("impact")}
+            isActive={activeFilters.includes("impact")}
+            onClick={() => handleFilterToggle("impact")}
           />
           <FilterButton
             label="Code Availability"
-            isActive={activeFilter === "code"}
-            onClick={() => onFilterChange("code")}
+            isActive={activeFilters.includes("code")}
+            onClick={() => handleFilterToggle("code")}
           />
         </div>
       )}
@@ -58,14 +68,17 @@ function FilterButton({ label, isActive, onClick }: FilterButtonProps) {
         isActive ? "text-white" : "text-white/60 hover:text-white/80"
       )}
     >
-      {isActive && (
-        <motion.div
-          layoutId="activeFilter"
-          className="absolute inset-0 bg-white/15 rounded-xl border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
-          initial={false}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        />
-      )}
+      <AnimatePresence>
+        {isActive && (
+          <motion.div
+            className="absolute inset-0 bg-white/15 rounded-xl border border-white/20 shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+          />
+        )}
+      </AnimatePresence>
       <span className="relative z-10">{label}</span>
     </button>
   );
