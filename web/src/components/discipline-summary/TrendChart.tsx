@@ -47,13 +47,22 @@ export function TrendChart({
   const paddedMinY = minY - yRange * 0.1;
   const paddedMaxY = maxY + yRange * 0.1;
 
-  // Scale functions
-  const scaleX = (x: number) =>
-    padding + ((x - minX) / (maxX - minX)) * (width - 2 * padding);
-  const scaleY = (y: number) =>
-    height -
-    padding -
-    ((y - paddedMinY) / (paddedMaxY - paddedMinY)) * (height - 2 * padding);
+  // Scale functions with NaN protection
+  const scaleX = (x: number) => {
+    if (maxX === minX) {
+      // All x values are the same, center horizontally
+      return width / 2;
+    }
+    return padding + ((x - minX) / (maxX - minX)) * (width - 2 * padding);
+  };
+
+  const scaleY = (y: number) => {
+    if (paddedMaxY === paddedMinY || yRange === 0) {
+      // All y values are the same, center vertically
+      return height / 2;
+    }
+    return height - padding - ((y - paddedMinY) / (paddedMaxY - paddedMinY)) * (height - 2 * padding);
+  };
 
   // Generate SVG path
   const pathData = data
@@ -152,7 +161,7 @@ export function TrendChart({
             alignmentBaseline="middle"
             className="text-[10px] fill-white/40"
           >
-            {value.toFixed(0)}
+            {isNaN(value) ? '0' : value.toFixed(0)}
           </text>
         ))}
       </svg>

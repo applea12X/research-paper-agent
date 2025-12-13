@@ -10,14 +10,15 @@ export function Tooltip({ content }: TooltipProps) {
 
   return (
     <div className="relative inline-block">
-      <button
+      <span
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
-        className="text-white/40 hover:text-white/60 transition-colors"
+        className="text-white/40 hover:text-white/60 transition-colors cursor-help inline-flex"
+        role="img"
         aria-label="More information"
       >
         <HelpCircle className="w-4 h-4" />
-      </button>
+      </span>
       {show && (
         <div className="absolute left-1/2 -translate-x-1/2 top-6 z-20 w-64 p-3 bg-gray-900/95 backdrop-blur-lg border border-white/10 rounded-lg text-xs text-white/80 leading-relaxed shadow-xl">
           {content}

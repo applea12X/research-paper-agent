@@ -1,14 +1,15 @@
 import { Paper, Discipline } from "@/types";
-import realPapersData from "./real_papers.json";
-import disciplineStatsData from "./discipline_stats.json";
+// Note: This file is deprecated - use realHeatmapData.ts instead
+// import realPapersData from "./real_papers.json";
+// import disciplineStatsData from "./discipline_stats.json";
 
 export { type Paper, type Discipline };
 
 // Load real papers from extracted data
-export const MOCK_PAPERS: Paper[] = realPapersData as Paper[];
+export const MOCK_PAPERS: Paper[] = [];
 
 // Load full discipline statistics (based on ALL papers, not just samples)
-const disciplineStats = disciplineStatsData as Record<string, {
+const disciplineStats = {} as Record<string, {
   paperCount: number;
   avgImpact: number;
   codeAvailableCount: number;
