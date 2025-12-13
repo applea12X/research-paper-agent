@@ -1,0 +1,5 @@
+fastapi>=0.85
+uvicorn[standard]>=0.18
+python-multipart>=0.0.5
+PyPDF2>=3.0
+networkx>=3.0

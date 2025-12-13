@@ -114,9 +114,9 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
     const extendedNodes: ExtendedNode[] = mode === "disciplines"
       ? (disciplines || []).map(d => ({
           ...d,
-          x: d.x || width * (d.impactScore / 100),
-          y: d.y || height / 2 + (Math.random() - 0.5) * 50,
-          r: 8 + (d.paperCount / 30) * 12, // Larger bubbles for disciplines
+          x: d.x || width * (d.impactScore / 100) + (Math.random() - 0.5) * 200, // Added horizontal spread
+          y: d.y || height / 2 + (Math.random() - 0.5) * 80, // Reduced vertical spread to 80
+          r: Math.min(8 + (d.paperCount / 30) * 8, 20), // Reduced max size and capped at 20px
           vx: d.vx || 0,
           vy: d.vy || 0,
           targetRadius: undefined,
@@ -124,9 +124,9 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
         } as ExtendedDiscipline))
       : (papers || []).map(p => ({
           ...p,
-          x: p.x || width * (p.impactScore / 100),
-          y: p.y || height / 2 + (Math.random() - 0.5) * 80,
-          r: 4 + (p.impactScore / 100) * 8,
+          x: p.x || width * (p.impactScore / 100) + (Math.random() - 0.5) * 250, // Added horizontal spread
+          y: p.y || height / 2 + (Math.random() - 0.5) * 100, // Reduced vertical spread to 100
+          r: Math.min(4 + (p.impactScore / 100) * 6, 14), // Reduced size multiplier and capped at 14px
           vx: p.vx || 0,
           vy: p.vy || 0,
           targetRadius: undefined,
@@ -221,7 +221,7 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
           const dy = nodeB.y - ayPos;
           const dist = Math.sqrt(dx * dx + dy * dy);
           const bRadius = nodeB.currentRadius || nodeB.r;          // Increase padding so bubbles sit slightly further apart
-          const minDist = aRadius + bRadius + 6;
+          const minDist = aRadius + bRadius + 12; // Increased padding from 6 to 12
 
           // If bubbles are overlapping, push them apart
           if (dist < minDist && dist > 0) {
@@ -435,17 +435,17 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
 
     // Configure Forces
 
-    // Force X: Always map impact score to X position
-    simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.5));
+    // Force X: Always map impact score to X position (very weak for horizontal spread)
+    simulation.force("x", d3.forceX<ExtendedNode>(d => width * 0.1 + (d.impactScore / 100) * width * 0.8).strength(0.08)); // Further reduced to 0.08 for more horizontal freedom
 
-    // Force Y: Depends on filter and mode
+    // Force Y: Depends on filter and mode (stronger to keep vertically centered)
     if (activeFilter === "code") {
       if (mode === "papers") {
         // Split vertically by code availability (papers mode)
         simulation.force("y", d3.forceY<ExtendedNode>(d => {
           const isPaper = 'codeAvailable' in d;
           return isPaper && d.codeAvailable ? height * 0.35 : height * 0.65;
-        }).strength(0.2));
+        }).strength(0.15)); // Increased from 0.05 to 0.15
       } else {
         // Split vertically by code availability percentage (disciplines mode)
         simulation.force("y", d3.forceY<ExtendedNode>(d => {
@@ -455,15 +455,15 @@ export function BubbleHeatmap({ papers, disciplines, activeFilter, mode, onDisci
             return height * 0.3 + (1 - codeRatio) * height * 0.4;
           }
           return height / 2;
-        }).strength(0.2));
+        }).strength(0.15)); // Increased from 0.05 to 0.15
       }
     } else {
-      // Center vertically
-      simulation.force("y", d3.forceY(height / 2).strength(0.1));
+      // Center vertically - stronger force to avoid white space
+      simulation.force("y", d3.forceY(height / 2).strength(0.12)); // Increased from 0.02 to 0.12
     }
-    simulation.force("collide", d3.forceCollide<ExtendedNode>(d => (d.currentRadius || d.r || 5) + 6).strength(0.5));
+    simulation.force("collide", d3.forceCollide<ExtendedNode>(d => (d.currentRadius || d.r || 5) + 12).strength(0.7)); // Increased padding from 6 to 12, strength from 0.5 to 0.7
 
-    simulation.force("charge", d3.forceManyBody().strength(-6));
+    simulation.force("charge", d3.forceManyBody().strength(-20)); // Increased repulsion from -6 to -20
 
     simulation.alpha(0.5).restart();
   };

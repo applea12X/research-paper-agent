@@ -1,61 +1,21 @@
 import { Paper, Discipline } from "@/types";
+import realPapersData from "./real_papers.json";
+import disciplineStatsData from "./discipline_stats.json";
 
 export { type Paper, type Discipline };
 
-const domains = [
-  "Agricultural and Food Sciences",
-  "Biology",
-  "Chemistry",
-  "Computer Science",
-  "Economics",
-  "Engineering",
-  "Environmental Science",
-  "Mathematics",
-  "Medicine",
-  "Physics",
-  "Political Science",
-  "Psychology",
-];
+// Load real papers from extracted data
+export const MOCK_PAPERS: Paper[] = realPapersData as Paper[];
 
-const titles = [
-  "Deep Learning for Protein Folding",
-  "Transformer Models in Legal Text Analysis",
-  "Reinforcement Learning for Autonomous Navigation",
-  "Generative Adversarial Networks in Art",
-  "Predicting Stock Market Trends with LSTM",
-  "Climate Change Modeling using CNNs",
-  "Automated Medical Diagnosis via Image Recognition",
-  "Quantum State Tomography with Neural Networks",
-  "Efficient Neural Architecture Search",
-  "Self-Supervised Learning for Speech Recognition",
-  "Graph Neural Networks for Drug Discovery",
-  "Explainable AI in Credit Scoring",
-  "Real-time Object Detection on Edge Devices",
-  "Multi-Agent Reinforcement Learning in Games",
-  "Zero-Shot Learning for Rare Disease Classification"
-];
-
-export const generateMockPapers = (count: number = 100): Paper[] => {
-  return Array.from({ length: count }, (_, i) => {
-    const impactScore = Math.random() * 100;
-    // Higher impact score correlates slightly with code availability for realism, but not strictly
-    const codeAvailable = Math.random() > 0.4 || (impactScore > 80 && Math.random() > 0.2);
-
-    return {
-      id: `paper-${i}`,
-      title: titles[i % titles.length] + (i >= titles.length ? ` ${Math.floor(i / titles.length) + 1}` : ""),
-      impactScore,
-      codeAvailable,
-      year: 2020 + Math.floor(Math.random() * 6),
-      citations: Math.floor(Math.random() * 1000) + (impactScore * 10),
-      domain: domains[Math.floor(Math.random() * domains.length)],
-    };
-  });
-};
-
-export const MOCK_PAPERS = generateMockPapers(150);
+// Load full discipline statistics (based on ALL papers, not just samples)
+const disciplineStats = disciplineStatsData as Record<string, {
+  paperCount: number;
+  avgImpact: number;
+  codeAvailableCount: number;
+}>;
 
 // Generate disciplines from papers with year ranges
+// Uses full statistics from all papers, not just the sampled subset
 export const generateDisciplines = (papers: Paper[]): Discipline[] => {
   const disciplineMap = new Map<string, Paper[]>();
 
@@ -78,6 +38,10 @@ export const generateDisciplines = (papers: Paper[]): Discipline[] => {
 
   // Create discipline objects for each domain and year range
   disciplineMap.forEach((domainPapers, domainName) => {
+    // Get full statistics for this discipline
+    const fullStats = disciplineStats[domainName];
+    if (!fullStats) return;
+
     yearRanges.forEach(yearRange => {
       // Filter papers for this year range
       const papersInRange = domainPapers.filter(
@@ -86,8 +50,12 @@ export const generateDisciplines = (papers: Paper[]): Discipline[] => {
 
       // Only create discipline if there are papers in this range
       if (papersInRange.length > 0) {
-        const avgImpact = papersInRange.reduce((sum, p) => sum + p.impactScore, 0) / papersInRange.length;
-        const codeCount = papersInRange.filter(p => p.codeAvailable).length;
+        // Calculate what proportion of papers are in this year range
+        const yearRatioBySample = papersInRange.length / domainPapers.length;
+
+        // Estimate actual paper count and code count based on full statistics
+        const estimatedPaperCount = Math.round(fullStats.paperCount * yearRatioBySample);
+        const estimatedCodeCount = Math.round(fullStats.codeAvailableCount * yearRatioBySample);
 
         disciplines.push({
           id: `discipline-${domainName.toLowerCase().replace(/\s+/g, '-')}-${yearRange.label}`,
@@ -95,9 +63,9 @@ export const generateDisciplines = (papers: Paper[]): Discipline[] => {
           yearRange: yearRange.label,
           startYear: yearRange.start,
           endYear: yearRange.end,
-          impactScore: avgImpact,
-          paperCount: papersInRange.length,
-          codeAvailableCount: codeCount,
+          impactScore: fullStats.avgImpact, // Use full dataset average
+          paperCount: estimatedPaperCount, // Estimated based on year range distribution
+          codeAvailableCount: estimatedCodeCount, // Estimated based on year range distribution
         });
       }
     });
