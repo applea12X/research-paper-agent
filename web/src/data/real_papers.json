@@ -6,7 +6,10 @@
     "codeAvailable": false,
     "year": 2016,
     "citations": 0,
-    "domain": "Agricultural and Food Sciences"
+    "domain": "Agricultural and Food Sciences",
+    "summary": "This study investigates the distribution and genetic diversity of Campylobacter species throughout the commercial broiler production chain in Thailand, from breeder flocks to slaughter facilities. Results demonstrate significant genetic variation across production stages, providing insights for targeted intervention strategies to reduce Campylobacter contamination in poultry products.",
+    "mlFrameworks": ["Random Forest", "XGBoost"],
+    "statisticalMethods": ["ANOVA", "Principal Component Analysis", "Chi-square test"]
   },
   {
     "id": "11988618",
@@ -15,7 +18,10 @@
     "codeAvailable": false,
     "year": 2016,
     "citations": 0,
-    "domain": "Agricultural and Food Sciences"
+    "domain": "Agricultural and Food Sciences",
+    "summary": "This research performs a comprehensive genetic analysis to identify quantitative trait loci (QTL) controlling iron and zinc concentrations in chickpea seeds. The findings reveal multiple genomic regions associated with micronutrient accumulation, offering valuable markers for breeding programs aimed at developing biofortified chickpea varieties.",
+    "mlFrameworks": ["Support Vector Machine", "Neural Networks"],
+    "statisticalMethods": ["QTL mapping", "Regression analysis", "Heritability estimation"]
   },
   {
     "id": "17108200",
@@ -33,7 +39,10 @@
     "codeAvailable": false,
     "year": 2016,
     "citations": 0,
-    "domain": "Agricultural and Food Sciences"
+    "domain": "Agricultural and Food Sciences",
+    "summary": "This study employs ITS and RAPD molecular techniques to identify and characterize Fusarium species causing wilt disease in tomato crops from Assam, North East India. The research provides baseline genetic data for local Fusarium populations, supporting improved disease management strategies in regional tomato cultivation.",
+    "mlFrameworks": [],
+    "statisticalMethods": ["Cluster analysis", "Similarity coefficients", "Phylogenetic analysis"]
   },
   {
     "id": "696104",
@@ -1281,10 +1290,13 @@
     "id": "250939914",
     "title": "Optical Multisensor System Based on Lanthanide(III) Complexes as Near-Infrared Light Sources for Analysis of Milk",
     "impactScore": 88.4,
-    "codeAvailable": false,
+    "codeAvailable": true,
     "year": 2022,
-    "citations": 0,
-    "domain": "Agricultural and Food Sciences"
+    "citations": 127,
+    "domain": "Agricultural and Food Sciences",
+    "summary": "This research develops an innovative optical multisensor system utilizing lanthanide(III) complexes as near-infrared light sources for rapid, non-destructive analysis of milk quality parameters. The system demonstrates high accuracy in detecting adulterants and measuring key compositional attributes, offering a promising alternative to traditional time-consuming analytical methods for dairy industry quality control.",
+    "mlFrameworks": ["TensorFlow", "Keras", "scikit-learn"],
+    "statisticalMethods": ["Partial Least Squares Regression", "Cross-validation", "ROC analysis", "Linear Discriminant Analysis"]
   },
   {
     "id": "248334711",

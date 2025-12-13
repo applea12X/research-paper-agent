@@ -6,6 +6,9 @@ export interface Paper {
   year: number;
   citations: number;
   domain: string;
+  summary?: string; // 2 sentence summary
+  mlFrameworks?: string[]; // ML frameworks mentioned
+  statisticalMethods?: string[]; // Statistical methods described
   // Simulation properties
   x?: number;
   y?: number;

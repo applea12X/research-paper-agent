@@ -871,28 +871,23 @@ function ExpandedView({ paper, containerRef, progress, onClose, isFullyExpanded 
         <div className="p-8 border-b border-white/10">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div
-                className="text-xs font-semibold uppercase tracking-wide mb-2"
-                style={{ color: bubbleColor }}
-              >
-                {paper.domain}
+              <div className="flex items-center gap-4 mb-3">
+                <h2 className="text-3xl font-bold text-white leading-tight">
+                  {paper.title}
+                </h2>
               </div>
-              <h2 className="text-3xl font-bold text-white leading-tight mb-3">
-                {paper.title}
-              </h2>
-              <div className="flex items-center gap-4 text-sm text-white/70">
-                <span>Impact: {Math.round(paper.impactScore)}</span>
+              <div className="flex items-center gap-4 text-base text-white/80 font-medium">
                 <span>{paper.year}</span>
-                <span>{paper.citations} citations</span>
-                {paper.codeAvailable && (
-                  <span className="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">
-                    Code Available
-                  </span>
-                )}
+                <span>•</span>
+                <span
+                  style={{ color: bubbleColor }}
+                >
+                  {paper.domain}
+                </span>
               </div>
             </div>
 
-            {/* Back button */}
+            {/* Close button */}
             <button
               onClick={onClose}
               className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-md border border-white/20"
@@ -902,221 +897,163 @@ function ExpandedView({ paper, containerRef, progress, onClose, isFullyExpanded 
           </div>
         </div>
 
-        {/* Nested bubble visualization */}
-        <div className="p-8 overflow-auto h-[calc(100%-160px)]">
-          <h3 className="text-xl font-semibold text-white/90 mb-6">Research Impact Network</h3>
-          <NestedBubbleVisualization parentPaper={paper} baseColor={bubbleColor} />
+        {/* Content */}
+        <div className="p-8 overflow-auto h-[calc(100%-160px)] space-y-6">
+          {/* Top Grid Section - ML Impact, Code Availability, Frameworks, Methods */}
+          <div className="grid grid-cols-2 gap-6">
+            {/* ML Impact */}
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-3">ML Impact</h3>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold text-white">{Math.round(paper.impactScore)}</span>
+                <span className="text-lg text-white/60">/ 100</span>
+              </div>
+              {/* Impact bar visualization */}
+              <div className="mt-4 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${paper.impactScore}%`,
+                    background: `linear-gradient(90deg, ${bubbleColor}, ${bubbleColor}dd)`
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Code Availability */}
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-3">Code Availability</h3>
+              <div className="flex items-center gap-3">
+                {paper.codeAvailable ? (
+                  <>
+                    <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-xl font-semibold text-green-400">Available</span>
+                  </>
+                ) : (
+                  <>
+                    <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <span className="text-xl font-semibold text-red-400">Not Available</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* ML Frameworks */}
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-3">ML Frameworks</h3>
+              <div className="flex flex-wrap gap-2">
+                {paper.mlFrameworks && paper.mlFrameworks.length > 0 ? (
+                  paper.mlFrameworks.map((framework, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1.5 rounded-lg bg-white/10 text-white/90 text-sm font-medium border border-white/10"
+                    >
+                      {framework}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-white/40 text-sm italic">Not specified</span>
+                )}
+              </div>
+            </div>
+
+            {/* Statistical Methods */}
+            <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+              <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-3">Statistical Methods</h3>
+              <div className="flex flex-wrap gap-2">
+                {paper.statisticalMethods && paper.statisticalMethods.length > 0 ? (
+                  paper.statisticalMethods.map((method, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1.5 rounded-lg bg-white/10 text-white/90 text-sm font-medium border border-white/10"
+                    >
+                      {method}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-white/40 text-sm italic">Not specified</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Graph Visualization */}
+          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+            <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-4">Impact Metrics</h3>
+            <ImpactMetricsChart paper={paper} bubbleColor={bubbleColor} />
+          </div>
+
+          {/* Summary Box at Bottom */}
+          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
+            <h3 className="text-sm font-semibold text-white/60 uppercase tracking-wide mb-3">Summary</h3>
+            <p className="text-white/90 text-base leading-relaxed">
+              {paper.summary || "No summary available for this paper."}
+            </p>
+          </div>
         </div>
       </motion.div>
     </motion.div>
   );
 }
 
-// === NESTED BUBBLE VISUALIZATION ===
-interface NestedBubbleVisualizationProps {
-  parentPaper: Paper;
-  baseColor: string;
+// === IMPACT METRICS CHART ===
+interface ImpactMetricsChartProps {
+  paper: Paper;
+  bubbleColor: string;
 }
 
-function NestedBubbleVisualization({ parentPaper, baseColor }: NestedBubbleVisualizationProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const simulationRef = useRef<d3.Simulation<NestedNode, undefined> | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<NestedNode | null>(null);
-
-  // Define nested node structure
-  interface NestedNode {
-    id: string;
-    label: string;
-    value: number;
-    category: "subtopic" | "paper" | "model" | "citation";
-    x?: number;
-    y?: number;
-    vx?: number;
-    vy?: number;
-    r?: number;
-  }
-
-  // Generate mock nested data based on parent paper
-  const nestedData: NestedNode[] = [
-    { id: "1", label: "Transformer Architecture", value: 85, category: "subtopic" },
-    { id: "2", label: "Attention Mechanism", value: 75, category: "subtopic" },
-    { id: "3", label: "BERT", value: 65, category: "model" },
-    { id: "4", label: "GPT-2", value: 60, category: "model" },
-    { id: "5", label: "Fine-tuning Methods", value: 55, category: "subtopic" },
-    { id: "6", label: "Related Paper 1", value: 50, category: "paper" },
-    { id: "7", label: "Related Paper 2", value: 45, category: "paper" },
-    { id: "8", label: "Cited Work A", value: 40, category: "citation" },
-    { id: "9", label: "Cited Work B", value: 35, category: "citation" },
-    { id: "10", label: "Application Domain", value: 70, category: "subtopic" },
+function ImpactMetricsChart({ paper, bubbleColor }: ImpactMetricsChartProps) {
+  // Metrics to visualize
+  const metrics = [
+    {
+      label: "ML Impact",
+      value: paper.impactScore,
+      maxValue: 100,
+      color: bubbleColor,
+    },
+    {
+      label: "Citations",
+      value: Math.min((paper.citations / 100) * 100, 100), // Normalize to 100
+      maxValue: 100,
+      color: d3.interpolateRgb(bubbleColor, "#8b5cf6")(0.4),
+    },
+    {
+      label: "Code Availability",
+      value: paper.codeAvailable ? 100 : 0,
+      maxValue: 100,
+      color: paper.codeAvailable ? "#22c55e" : "#ef4444",
+    },
   ];
 
-  useEffect(() => {
-    if (!canvasRef.current || !containerRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let width = containerRef.current.clientWidth;
-    let height = containerRef.current.clientHeight;
-
-    // Performance detection (same heuristics as parent component)
-    // Safe check for SSR
-    const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 4 : 4;
-    const isMobile = typeof window !== 'undefined' && 'ontouchstart' in window && window.innerWidth < 768;
-    const isLowPower = (isMobile && cores <= 4) || cores <= 2;
-
-    // High DPI support (reduced on low-power devices)
-    const dpr = isLowPower ? 1 : (typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1);
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.scale(dpr, dpr);
-
-    // Initialize nodes
-    nestedData.forEach(n => {
-      n.x = width / 2 + (Math.random() - 0.5) * 100;
-      n.y = height / 2 + (Math.random() - 0.5) * 100;
-      n.r = 3 + (n.value / 100) * 12; // Smaller bubbles (3-15px)
-    });
-
-    // Category colors (lighter variations of base color)
-    const categoryColors = {
-      subtopic: baseColor,
-      paper: d3.interpolateRgb(baseColor, "#8b5cf6")(0.3),
-      model: d3.interpolateRgb(baseColor, "#06b6d4")(0.3),
-      citation: d3.interpolateRgb(baseColor, "#a855f7")(0.3),
-    };
-
-    // Force simulation
-    const simulation = d3.forceSimulation<NestedNode>(nestedData)
-      .force("charge", d3.forceManyBody().strength(-15))
-      .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collide", d3.forceCollide<NestedNode>(d => (d.r || 5) + 2).strength(0.7))
-      .alphaDecay(0.02)
-      .velocityDecay(0.3);
-
-    simulationRef.current = simulation;
-
-    let mouseX = -1000;
-    let mouseY = -1000;
-
-    // Render loop
-    const tick = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      nestedData.forEach(node => {
-        if (!node.x || !node.y || !node.r) return;
-
-        // Subtle cursor repulsion
-        const dx = mouseX - node.x;
-        const dy = mouseY - node.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 80) {
-          const force = (1 - dist / 80) * 0.3;
-          node.vx = (node.vx || 0) - (dx / dist) * force;
-          node.vy = (node.vy || 0) - (dy / dist) * force;
-        }
-
-        // Draw bubble
-        ctx.beginPath();
-        const isHovered = hoveredNode && hoveredNode.id === node.id;
-        const radius = isHovered ? node.r * 1.3 : node.r;
-
-        ctx.arc(node.x, node.y, radius, 0, 2 * Math.PI);
-
-        // Color based on category (performance-aware shadow blur)
-        ctx.fillStyle = categoryColors[node.category];
-        ctx.shadowBlur = isLowPower ? (isHovered ? 4 : 1) : (isHovered ? 10 : 3);
-        ctx.shadowColor = categoryColors[node.category];
-        ctx.globalAlpha = isHovered ? 0.9 : 0.6;
-
-        ctx.fill();
-
-        // Label for hovered node
-        if (isHovered) {
-          ctx.globalAlpha = 1;
-          ctx.fillStyle = "white";
-          ctx.font = "10px sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(node.label, node.x, node.y + radius + 12);
-        }
-
-        ctx.globalAlpha = 1;
-        ctx.shadowBlur = 0;
-      });
-    };
-
-    simulation.on("tick", tick);
-
-    // Mouse interaction
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
-
-      // Find hovered node
-      let closest: NestedNode | null = null;
-      let minDist = Infinity;
-
-      nestedData.forEach(node => {
-        if (!node.x || !node.y) return;
-        const dx = mouseX - node.x;
-        const dy = mouseY - node.y;
-        const d = Math.sqrt(dx * dx + dy * dy);
-
-        if (d < (node.r || 5) + 3 && d < minDist) {
-          minDist = d;
-          closest = node;
-        }
-      });
-
-      if (closest !== hoveredNode) {
-        setHoveredNode(closest);
-      }
-    };
-
-    const handleMouseLeave = () => {
-      mouseX = -1000;
-      mouseY = -1000;
-      setHoveredNode(null);
-    };
-
-    canvas.addEventListener("mousemove", handleMouseMove);
-    canvas.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      simulation.stop();
-      canvas.removeEventListener("mousemove", handleMouseMove);
-      canvas.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [parentPaper, baseColor]);
-
   return (
-    <div ref={containerRef} className="relative w-full h-[500px] rounded-xl bg-black/20 border border-white/10 overflow-hidden">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full cursor-crosshair" />
-
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 flex gap-4 text-sm text-white/70">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: baseColor }} />
-          <span>Subtopics</span>
+    <div className="space-y-4">
+      {metrics.map((metric, idx) => (
+        <div key={idx} className="space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white/80 font-medium">{metric.label}</span>
+            <span className="text-white/60">{Math.round(metric.value)}</span>
+          </div>
+          <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(metric.value / metric.maxValue) * 100}%` }}
+              transition={{ duration: 0.8, delay: idx * 0.1, ease: "easeOut" }}
+              className="h-full rounded-full"
+              style={{
+                background: `linear-gradient(90deg, ${metric.color}, ${metric.color}dd)`
+              }}
+            />
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-purple-400" />
-          <span>Models</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-cyan-400" />
-          <span>Papers</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-violet-400" />
-          <span>Citations</span>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
