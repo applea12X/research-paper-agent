@@ -13,15 +13,18 @@ export default function Home() {
   const [activeFilters, setActiveFilters] = useState<FilterType>([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedDiscipline, setSelectedDiscipline] = useState<Discipline | null>(null);
-  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(true);
 
   const handleDisciplineClick = (discipline: Discipline) => {
     setSelectedDiscipline(discipline);
+    // Panel stays closed when selecting a discipline
   };
 
   const handleBackToDisciplines = () => {
     setSelectedDiscipline(null);
-    setIsPanelCollapsed(false); // Reset collapsed state when going back
+    setIsPanelOpen(false); // Close panel when going back
+    setIsPanelCollapsed(true); // Reset collapsed state when going back
   };
 
   const currentPapers = selectedDiscipline
@@ -32,7 +35,6 @@ export default function Home() {
     REAL_DISCIPLINES.map(d => d.name)
   );
 
-  const isPanelOpen = selectedDiscipline !== null;
   const panelWidth = isPanelCollapsed ? 48 : 384;
 
   return (
@@ -74,17 +76,29 @@ export default function Home() {
           </button>
         )}
 
-        {/* Collapse/Expand panel button */}
+        {/* Show/Collapse/Expand panel button */}
         {selectedDiscipline && (
           <button
-            onClick={() => setIsPanelCollapsed(!isPanelCollapsed)}
+            onClick={() => {
+              if (!isPanelOpen) {
+                setIsPanelOpen(true);
+                setIsPanelCollapsed(false);
+              } else {
+                setIsPanelCollapsed(!isPanelCollapsed);
+              }
+            }}
             className="fixed top-24 z-10 flex items-center gap-2.5 px-4 py-3 bg-white/5 hover:bg-white/10 backdrop-blur-xl rounded-2xl transition-all duration-300 active:scale-95 shadow-lg group"
             style={{
               left: isPanelOpen ? `calc(${panelWidth}px + 1.5rem)` : '1.5rem'
             }}
-            aria-label={isPanelCollapsed ? "Expand panel" : "Collapse panel"}
+            aria-label={!isPanelOpen ? "Show panel" : isPanelCollapsed ? "Expand panel" : "Collapse panel"}
           >
-            {isPanelCollapsed ? (
+            {!isPanelOpen ? (
+              <>
+                <ChevronRight className="w-4 h-4 text-white/80 group-hover:text-white transition-colors" />
+                <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">Show Panel</span>
+              </>
+            ) : isPanelCollapsed ? (
               <>
                 <ChevronRight className="w-4 h-4 text-white/80 group-hover:text-white transition-colors" />
                 <span className="text-sm font-medium text-white/90 group-hover:text-white transition-colors">Expand Panel</span>
