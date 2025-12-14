@@ -230,41 +230,66 @@ function generateCitationFlows(fieldAnalyses: any): any[] {
 }
 
 function generateKeyTakeaways(fieldAnalyses: any, aggregateMLAdoption: number): any[] {
+  const csData = fieldAnalyses.ComputerScience?.ml_impact;
+  const aggregateCodeAvail = Object.values(fieldAnalyses).reduce(
+    (sum: number, field: any) => sum + (field.reproducibility?.code_availability_rate || 0),
+    0
+  ) / Object.keys(fieldAnalyses).length;
+  
+  const totalPapers = Object.values(fieldAnalyses).reduce(
+    (sum: number, field: any) => sum + (field.ml_impact?.total_papers || 0),
+    0
+  );
+
   return [
     {
       category: "strong",
-      title: "ML adoption varies significantly across disciplines",
-      description: `Computer Science leads with ${fieldAnalyses.ComputerScience?.ml_impact?.ml_adoption_rate || 0}% ML adoption, while other fields show lower integration rates.`,
+      title: "ML adoption remains modest across most scientific disciplines",
+      description: `Overall ML adoption rate is ${aggregateMLAdoption.toFixed(1)}% across ${totalPapers.toLocaleString()} papers analyzed. Computer Science shows highest adoption at ${csData?.ml_adoption_rate?.toFixed(1) || 0}%, while traditional fields like Mathematics show only ${fieldAnalyses.Mathematics?.ml_impact?.ml_adoption_rate?.toFixed(1) || 0}% adoption.`,
       evidenceStrength: "high",
-      supportingData: `Based on ${Object.keys(fieldAnalyses).length} disciplines, ${fieldAnalyses.ComputerScience?.ml_impact?.total_papers || 0} papers analyzed`,
+      supportingData: `Based on ${Object.keys(fieldAnalyses).length} disciplines, ${totalPapers.toLocaleString()} papers (2007-2024)`,
     },
     {
       category: "strong",
-      title: "Code availability remains low across all disciplines",
-      description: `Only ${aggregateMLAdoption.toFixed(1)}% of papers provide publicly available code, indicating a significant reproducibility challenge.`,
+      title: "Reproducibility crisis: Code availability is critically low",
+      description: `Only ${aggregateCodeAvail.toFixed(2)}% of papers provide publicly available code. Even Computer Science, the highest at ${fieldAnalyses.ComputerScience?.reproducibility?.code_availability_rate?.toFixed(2) || 0}%, falls far short of reproducibility standards.`,
       evidenceStrength: "high",
-      supportingData: "Consistent across all analyzed fields",
+      supportingData: `${fieldAnalyses.ComputerScience?.reproducibility?.papers_with_code || 0} papers with code out of ${csData?.total_papers || 0} analyzed`,
+    },
+    {
+      category: "strong",
+      title: "Higher ML integration correlates with better code sharing",
+      description: `Papers with substantial/core ML usage show higher code availability rates. In Computer Science, core ML papers have ${fieldAnalyses.ComputerScience?.reproducibility?.code_availability_by_ml_level?.core?.rate?.toFixed(1) || 0}% code availability vs ${fieldAnalyses.ComputerScience?.reproducibility?.code_availability_by_ml_level?.none?.rate?.toFixed(1) || 0}% for non-ML papers.`,
+      evidenceStrength: "high",
+      supportingData: "Pattern consistent across Biology, Physics, and Psychology",
     },
     {
       category: "emerging",
-      title: "Statistical methods usage correlates with field maturity",
-      description: "Medicine and Psychology show highest statistical methods usage, while emerging fields show lower rates.",
+      title: "Recent years show accelerated ML adoption spikes",
+      description: `Multiple fields show dramatic ML adoption increases in 2022: Computer Science reached ${fieldAnalyses.ComputerScience?.temporal?.ml_adoption_by_year?.["2022"]?.ml_rate?.toFixed(1) || 0}%, Psychology jumped to ${fieldAnalyses.Psychology?.temporal?.ml_adoption_by_year?.["2022"]?.ml_rate?.toFixed(1) || 0}%, suggesting a watershed moment.`,
       evidenceStrength: "medium",
-      supportingData: `Based on analysis of ${Object.keys(fieldAnalyses).length} fields`,
+      supportingData: "Based on temporal trends across 2007-2022",
     },
     {
       category: "emerging",
-      title: "Real-world application rates are high across fields",
-      description: "Most disciplines show over 90% real-world application rate, indicating practical relevance of research.",
+      title: "Traditional statistical fields resist ML integration",
+      description: `Mathematics (${fieldAnalyses.Mathematics?.ml_impact?.ml_adoption_rate?.toFixed(1) || 0}%), Engineering (${fieldAnalyses.Engineering?.ml_impact?.ml_adoption_rate?.toFixed(1) || 0}%), and Business (${fieldAnalyses.Business?.ml_impact?.ml_adoption_rate?.toFixed(1) || 0}%) maintain low ML adoption, suggesting domain-specific barriers or alternative methodological preferences.`,
       evidenceStrength: "medium",
-      supportingData: "Based on outcome metrics across disciplines",
+      supportingData: "Consistent low adoption over multiple years",
     },
     {
       category: "open",
-      title: "ML impact attribution remains difficult to quantify",
-      description: "While ML adoption is measurable, isolating ML's specific contribution to research outcomes requires further analysis.",
+      title: "Real-world impact validation is self-reported and unverified",
+      description: `While ${fieldAnalyses.Biology?.outcomes?.real_world_application_rate?.toFixed(1) || 0}%-${fieldAnalyses.Engineering?.outcomes?.real_world_application_rate?.toFixed(1) || 0}% of papers claim real-world applications, these metrics rely on paper abstracts without independent verification of actual deployment or impact.`,
       evidenceStrength: "low",
-      supportingData: "Limited causal data available",
+      supportingData: "Based on text analysis, not outcome tracking",
+    },
+    {
+      category: "open",
+      title: "Core ML adoption remains marginal even in leading fields",
+      description: `Only ${csData?.core_ml_rate?.toFixed(2) || 0}% of Computer Science papers use ML as a core methodology. This raises questions about whether ML is transformative or merely supplementary in most research contexts.`,
+      evidenceStrength: "low",
+      supportingData: `${csData?.ml_distribution?.core?.count || 0} core ML papers out of ${csData?.total_papers || 0} total`,
     },
   ];
 }
