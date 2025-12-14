@@ -16,7 +16,7 @@ export function KeyTakeaways({ takeaways }: KeyTakeawaysProps) {
   return (
     <section className="mb-16">
       <SectionHeader
-        subtitle="Section 6"
+        subtitle="Section 5"
         title="Key Takeaways & Implications"
         description="Evidence-backed insights, emerging patterns, and open questions. Clear differentiation between signal strength levels."
       />

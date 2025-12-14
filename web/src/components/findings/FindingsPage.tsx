@@ -5,7 +5,6 @@ import { GlobalImpactOverview } from "./GlobalImpactOverview";
 import { DisciplineComparison } from "./DisciplineComparison";
 import { AdoptionDynamics } from "./AdoptionDynamics";
 import { QualitySignals } from "./QualitySignals";
-import { CaseTraces } from "./CaseTraces";
 import { KeyTakeaways } from "./KeyTakeaways";
 import { FINDINGS_DATA } from "@/data/findingsData";
 
@@ -45,8 +44,6 @@ export function FindingsPage() {
         <AdoptionDynamics adoptionCurves={data.adoptionCurves} />
 
         <QualitySignals reproducibility={data.reproducibility} />
-
-        <CaseTraces caseTraces={data.caseTraces} />
 
         <KeyTakeaways takeaways={data.keyTakeaways} />
 
