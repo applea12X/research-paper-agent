@@ -1,0 +1,19 @@
+INFO:     Started server process [12193]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+✓ Dataset loaded successfully
+INFO:     127.0.0.1:65506 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65520 - "GET /api/search?q=protein%20folding&limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49159 - "GET /api/trending?days=30&limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49185 - "GET /api/search?q=deep%20learning%20drug%20discovery&limit=2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49248 - "GET /api/search?q=biology&limit=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49280 - "GET /api/search?q=alphafold&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49556 - "GET /api/search?q=deep%20learning&limit=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49630 - "POST /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49675 - "GET /api/trending?days=30&limit=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49756 - "GET /api/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49805 - "GET /api/search?q=ariculture&limit=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49828 - "GET /api/search?q=agriculture&limit=20 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49828 - "OPTIONS /api/chat HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49828 - "POST /api/chat HTTP/1.1" 200 OK

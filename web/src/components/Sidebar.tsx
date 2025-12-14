@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Home, BarChart3, FileText, GitBranch, Search, Zap, MessageCircle } from "lucide-react";
+import { isHmrRefresh } from "next/dist/server/app-render/work-unit-async-storage.external";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,6 +15,7 @@ const navigation = [
   { name: "Summary of Findings", href: "/findings", icon: FileText },
   { name: "Case Studies", href: "/case-studies", icon: BarChart3 },
   { name: "Dive", href: "/dive", icon: MessageCircle },
+  { name: "Search Papers", href: "/search", icon: Search },
   { name: "Adoption Dynamics", href: "#", icon: GitBranch, disabled: true },
   { name: "Quality Trade-offs", href: "#", icon: Zap, disabled: true },
   { name: "Discovery Traces", href: "#", icon: Search, disabled: true },

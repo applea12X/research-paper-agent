@@ -1,7 +1,20 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(curl:*)",
+      "Bash(kill:*)",
+      "Bash(cat:*)",
+      "Bash(for py in python3.11 python3.12 python3.13 python3)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash($py -c \"import fastapi; print(''  ✓ fastapi found'')\")",
+      "Bash(done)",
+      "Bash(pip3 install:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)",
+      "Bash(pkill:*)"
     ],
     "deny": [],
     "ask": []

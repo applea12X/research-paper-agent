@@ -2,16 +2,17 @@
 FastAPI backend for research paper dataset Q&A using Ollama.
 """
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import requests
 import json
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 import PyPDF2
 import io
 import re
+from datetime import datetime, timedelta
 
 app = FastAPI(title="Research Paper Dataset API")
 
@@ -458,6 +459,415 @@ async def get_dataset_summary():
         "aggregate_metrics": dataset.get("aggregate_metrics", {}),
         "available_fields": list(dataset.get("field_analyses", {}).keys())
     }
+
+
+class PaperSearchResult(BaseModel):
+    """Model for search results from Semantic Scholar."""
+    paperId: str
+    title: str
+    authors: List[dict]
+    year: Optional[int] = None
+    abstract: Optional[str] = None
+    citationCount: Optional[int] = 0
+    url: Optional[str] = None
+    venue: Optional[str] = None
+    publicationDate: Optional[str] = None
+    fieldsOfStudy: Optional[List[str]] = []
+    influentialCitationCount: Optional[int] = 0
+    isOpenAccess: Optional[bool] = False
+    openAccessPdf: Optional[dict] = None
+
+
+def map_field_to_dataset(paper_fields: List[str]) -> Optional[str]:
+    """Map Semantic Scholar fields to our dataset fields."""
+    field_mapping = {
+        "Biology": ["Biology", "Molecular Biology", "Cell Biology", "Genetics"],
+        "ComputerScience": ["Computer Science"],
+        "Physics": ["Physics"],
+        "Psychology": ["Psychology"],
+        "Medicine": ["Medicine"],
+        "Engineering": ["Engineering"],
+        "Mathematics": ["Mathematics"],
+        "Economics": ["Economics"],
+        "Business": ["Business"],
+        "EnvironmentalScience": ["Environmental Science", "Ecology", "Geography"],
+        "MaterialsScience": ["Materials Science", "Chemistry"],
+        "AgriculturalAndFoodSciences": ["Agricultural and Food Sciences"],
+    }
+
+    for dataset_field, ss_fields in field_mapping.items():
+        for paper_field in paper_fields:
+            if any(ss_field.lower() in paper_field.lower() for ss_field in ss_fields):
+                return dataset_field
+
+    return None
+
+
+def analyze_paper_against_trends(paper: dict, field: Optional[str]) -> dict:
+    """Analyze how a paper compares to dataset trends."""
+    if not dataset or not field or field not in dataset.get("field_analyses", {}):
+        return {
+            "field": field or "Unknown",
+            "ml_adoption_rate": None,
+            "has_ml": False,
+            "comparison": "No data available for this field",
+            "prediction": None,
+            "citation_percentile": "Unknown"
+        }
+
+    field_data = dataset["field_analyses"][field]
+    ml_impact = field_data.get("ml_impact", {})
+
+    # Simple heuristic: check if title/abstract mentions ML/AI keywords
+    text = f"{paper.get('title', '')} {paper.get('abstract', '')}".lower()
+    ml_keywords = ["machine learning", "deep learning", "neural network", "artificial intelligence",
+                   "ai", "ml", "transformer", "reinforcement learning", "supervised learning"]
+
+    has_ml = any(keyword in text for keyword in ml_keywords)
+
+    ml_adoption = ml_impact.get("ml_adoption_rate", 0)
+    citation_count = paper.get("citationCount", 0)
+    year = paper.get("year", 0)
+
+    # Predict potential impact
+    prediction = "Average"
+    if has_ml and ml_adoption > 50:
+        if citation_count > 50 or year >= 2023:
+            prediction = "High Impact"
+        else:
+            prediction = "Above Average"
+    elif has_ml and ml_adoption < 30:
+        prediction = "Pioneering"
+    elif not has_ml and ml_adoption > 60:
+        prediction = "Traditional Approach"
+
+    comparison = f"This field has {ml_adoption:.1f}% ML adoption rate."
+    if has_ml:
+        comparison += f" This paper uses ML methods, placing it {'above' if ml_adoption < 50 else 'within'} the field average."
+    else:
+        comparison += f" This paper does not appear to use ML methods."
+
+    return {
+        "field": field,
+        "ml_adoption_rate": ml_adoption,
+        "has_ml": has_ml,
+        "comparison": comparison,
+        "prediction": prediction,
+        "citation_percentile": "High" if citation_count > 100 else "Medium" if citation_count > 10 else "Low"
+    }
+
+
+@app.get("/api/search")
+async def search_papers(
+    q: str = Query(..., description="Search query"),
+    limit: int = Query(10, ge=1, le=100),
+    year: Optional[str] = Query(None, description="Filter by year (e.g., '2023' or '2020-2023')"),
+    fields: Optional[str] = Query(None, description="Filter by fields of study (comma-separated)"),
+    min_citations: Optional[int] = Query(None, ge=0),
+    open_access: Optional[bool] = Query(None)
+):
+    """
+    Search for papers using OpenAlex API (free, no key required) and analyze against our dataset trends.
+    """
+    try:
+        # Build OpenAlex API query - completely free!
+        filter_parts = []
+
+        if year:
+            if '-' in year:
+                start, end = year.split('-')
+                filter_parts.append(f"publication_year:{start}-{end}")
+            else:
+                filter_parts.append(f"publication_year:{year}")
+
+        if min_citations:
+            filter_parts.append(f"cited_by_count:>{min_citations}")
+
+        if open_access:
+            filter_parts.append("is_oa:true")
+
+        # OpenAlex API endpoint
+        params = {
+            "search": q,
+            "per-page": min(limit, 100),
+            "mailto": "research@example.com"  # Polite pool for faster responses
+        }
+
+        if filter_parts:
+            params["filter"] = ",".join(filter_parts)
+
+        # Call OpenAlex API - free and open!
+        response = requests.get(
+            "https://api.openalex.org/works",
+            params=params,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"OpenAlex API error: {response.text}"
+            )
+
+        data = response.json()
+        papers = data.get("results", [])
+
+        # Analyze each paper against our trends
+        results = []
+        for paper in papers:
+            if not paper:
+                continue
+
+            # Extract paper details from OpenAlex format
+            title = paper.get("title", "")
+            paper_id = paper.get("id", "").split("/")[-1] if paper.get("id") else ""
+
+            # Get publication year
+            pub_year = paper.get("publication_year")
+
+            # Get abstract (OpenAlex uses inverted_abstract)
+            abstract = ""
+            inverted_abstract = paper.get("abstract_inverted_index", {})
+            if inverted_abstract:
+                # Reconstruct abstract from inverted index
+                word_positions = []
+                for word, positions in inverted_abstract.items():
+                    for pos in positions:
+                        word_positions.append((pos, word))
+                word_positions.sort()
+                abstract = " ".join([word for _, word in word_positions])
+
+            # Get authors
+            authorships = paper.get("authorships", [])
+            authors = [a.get("author", {}).get("display_name", "Unknown") for a in authorships]
+
+            # Get citations
+            citation_count = paper.get("cited_by_count", 0)
+
+            # Get concepts (fields of study)
+            concepts = paper.get("concepts", [])
+            paper_fields = [c.get("display_name", "") for c in concepts if c.get("level") <= 1]
+
+            # Map fields to our dataset
+            mapped_field = map_field_to_dataset(paper_fields)
+
+            # Analyze against trends
+            trend_analysis = analyze_paper_against_trends({
+                "title": title,
+                "abstract": abstract,
+                "citationCount": citation_count,
+                "year": pub_year
+            }, mapped_field)
+
+            # Get venue/journal
+            venue = ""
+            primary_location = paper.get("primary_location", {})
+            if primary_location:
+                source = primary_location.get("source", {})
+                venue = source.get("display_name", "") if source else ""
+
+            # Get URL
+            paper_url = paper.get("doi", "")
+            if paper_url and not paper_url.startswith("http"):
+                paper_url = f"https://doi.org/{paper_url}"
+            if not paper_url:
+                paper_url = paper.get("id", "")
+
+            # Check if open access
+            is_oa = paper.get("open_access", {}).get("is_oa", False)
+            oa_url = paper.get("open_access", {}).get("oa_url")
+
+            results.append({
+                "id": paper_id,
+                "title": title,
+                "authors": authors[:10],  # Limit to first 10 authors
+                "year": pub_year,
+                "abstract": abstract[:500] if abstract else "",  # Limit abstract length
+                "citations": citation_count,
+                "influentialCitations": citation_count,  # OpenAlex doesn't have this metric
+                "url": paper_url,
+                "venue": venue,
+                "publicationDate": str(pub_year) if pub_year else "",
+                "fieldsOfStudy": paper_fields,
+                "isOpenAccess": is_oa,
+                "openAccessPdf": {"url": oa_url} if oa_url else None,
+                "trendAnalysis": trend_analysis
+            })
+
+        return {
+            "total": data.get("meta", {}).get("count", 0),
+            "papers": results,
+            "query": q
+        }
+
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Search request timed out")
+    except requests.exceptions.ConnectionError:
+        raise HTTPException(
+            status_code=503,
+            detail="Cannot connect to OpenAlex API. Please check your internet connection."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Search error: {str(e)}")
+
+
+@app.get("/api/trending")
+async def get_trending_papers(
+    field: Optional[str] = Query(None, description="Filter by field"),
+    days: int = Query(30, ge=1, le=365, description="Papers from last N days"),
+    limit: int = Query(20, ge=1, le=100)
+):
+    """
+    Get trending/recent papers with high citation velocity using OpenAlex (free API).
+    """
+    try:
+        # Calculate date range
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+
+        # Build filter for recent high-impact papers
+        filter_parts = [
+            f"publication_year:{start_date.year}-{end_date.year}",
+            "cited_by_count:>10"  # At least 10 citations
+        ]
+
+        # Build query
+        query = "machine learning" if not field else field
+
+        params = {
+            "search": query,
+            "filter": ",".join(filter_parts),
+            "per-page": min(limit, 100),
+            "sort": "cited_by_count:desc",
+            "mailto": "research@example.com"
+        }
+
+        response = requests.get(
+            "https://api.openalex.org/works",
+            params=params,
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=f"OpenAlex API error: {response.text}"
+            )
+
+        data = response.json()
+        papers = data.get("results", [])
+
+        # Analyze and format results
+        results = []
+        for paper in papers:
+            if not paper:
+                continue
+
+            # Extract paper details from OpenAlex format
+            title = paper.get("title", "")
+            paper_id = paper.get("id", "").split("/")[-1] if paper.get("id") else ""
+            pub_year = paper.get("publication_year")
+
+            # Get abstract
+            abstract = ""
+            inverted_abstract = paper.get("abstract_inverted_index", {})
+            if inverted_abstract:
+                word_positions = []
+                for word, positions in inverted_abstract.items():
+                    for pos in positions:
+                        word_positions.append((pos, word))
+                word_positions.sort()
+                abstract = " ".join([word for _, word in word_positions])
+
+            # Get authors
+            authorships = paper.get("authorships", [])
+            authors = [a.get("author", {}).get("display_name", "Unknown") for a in authorships]
+
+            # Get citations
+            citation_count = paper.get("cited_by_count", 0)
+
+            # Get concepts (fields of study)
+            concepts = paper.get("concepts", [])
+            paper_fields = [c.get("display_name", "") for c in concepts if c.get("level") <= 1]
+            mapped_field = map_field_to_dataset(paper_fields)
+
+            # Analyze against trends
+            trend_analysis = analyze_paper_against_trends({
+                "title": title,
+                "abstract": abstract,
+                "citationCount": citation_count,
+                "year": pub_year
+            }, mapped_field)
+
+            # Calculate citation velocity (citations per month since publication)
+            citation_velocity = 0
+            pub_date = paper.get("publication_date")
+            if pub_date:
+                try:
+                    pub_datetime = datetime.strptime(pub_date, "%Y-%m-%d")
+                    months_old = max(1, (datetime.now() - pub_datetime).days / 30)
+                    citation_velocity = citation_count / months_old
+                except:
+                    pass
+
+            # Get venue
+            venue = ""
+            primary_location = paper.get("primary_location", {})
+            if primary_location:
+                source = primary_location.get("source", {})
+                venue = source.get("display_name", "") if source else ""
+
+            # Get URL
+            paper_url = paper.get("doi", "")
+            if paper_url and not paper_url.startswith("http"):
+                paper_url = f"https://doi.org/{paper_url}"
+            if not paper_url:
+                paper_url = paper.get("id", "")
+
+            # Check if open access
+            is_oa = paper.get("open_access", {}).get("is_oa", False)
+            oa_url = paper.get("open_access", {}).get("oa_url")
+
+            results.append({
+                "id": paper_id,
+                "title": title,
+                "authors": authors[:10],
+                "year": pub_year,
+                "abstract": abstract[:500] if abstract else "",
+                "citations": citation_count,
+                "influentialCitations": citation_count,
+                "citationVelocity": round(citation_velocity, 2),
+                "url": paper_url,
+                "venue": venue,
+                "publicationDate": pub_date or (str(pub_year) if pub_year else ""),
+                "fieldsOfStudy": paper_fields,
+                "isOpenAccess": is_oa,
+                "openAccessPdf": {"url": oa_url} if oa_url else None,
+                "trendAnalysis": trend_analysis
+            })
+
+        # Sort by citation velocity
+        results.sort(key=lambda x: x["citationVelocity"], reverse=True)
+
+        return {
+            "papers": results,
+            "dateRange": f"{start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}",
+            "field": field
+        }
+
+    except requests.exceptions.Timeout:
+        raise HTTPException(status_code=504, detail="Trending papers request timed out")
+    except requests.exceptions.ConnectionError:
+        raise HTTPException(
+            status_code=503,
+            detail="Cannot connect to OpenAlex API. Please check your internet connection."
+        )
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching trending papers: {str(e)}")
 
 
 if __name__ == "__main__":

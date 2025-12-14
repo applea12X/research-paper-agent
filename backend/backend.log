@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/joshuawu/research-paper-agent/backend/main.py", line 5, in <module>
+    from fastapi import FastAPI, HTTPException, UploadFile, File, Query
+ModuleNotFoundError: No module named 'fastapi'
