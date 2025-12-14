@@ -3,12 +3,8 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar } from "lucide-react";
-<<<<<<< HEAD
-import { CaseStudy, CaseEvent, CaseEventType } from "@/data/mockCaseStudies";
-import { useVirtualTimelineScroll } from "@/hooks/useVirtualTimelineScroll";
-=======
 import { CaseStudy, CaseEvent, CaseEventType } from "@/data/realCaseStudies";
->>>>>>> main
+import { useVirtualTimelineScroll } from "@/hooks/useVirtualTimelineScroll";
 
 interface TimelineProps {
   caseStudy?: CaseStudy;
