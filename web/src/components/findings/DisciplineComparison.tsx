@@ -48,9 +48,9 @@ export function DisciplineComparison({ disciplines }: DisciplineComparisonProps)
   return (
     <section className="mb-16">
       <SectionHeader
-        subtitle="Section 2"
-        title="Discipline-by-Discipline Impact Comparison"
-        description="Cross-field analysis of ML adoption, acceleration, and quality signals. Click column headers to sort."
+        subtitle="Cross-Discipline Impact Analysis"
+        title="Discipline-by-Discipline Comparison"
+        description="Compare ML adoption rates (%), estimated acceleration (months saved), citation lift multipliers, reproducibility scores (code availability scaled 0-100), and composite net impact ratings. Net impact combines adoption (40%), reproducibility (30%), and significant ML usage (30%). Click column headers to sort."
       />
 
       <div className="glass rounded-2xl overflow-hidden">

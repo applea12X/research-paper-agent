@@ -12,6 +12,12 @@ export interface AttributionScore {
   mlContribution: number; // 0-100 scale
   domainInsight: number; // 0-100 scale
   confidenceInterval: [number, number];
+  breakdown: {
+    minimal: number;
+    moderate: number;
+    substantial: number;
+    core: number;
+  };
 }
 
 export interface EfficiencyMetric {

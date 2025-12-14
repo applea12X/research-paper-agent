@@ -22,9 +22,13 @@ export function FindingsPage() {
           <p className="text-lg text-white/60 max-w-3xl leading-relaxed">
             Quantifying Machine Learning's Real Impact on Scientific Progress
           </p>
-          <p className="text-sm text-white/40 mt-4">
+          <p className="text-sm text-white/40 mt-4 leading-relaxed">
             Based on analysis of {data.globalMetrics.totalPapersAnalyzed.toLocaleString()}{" "}
-            papers from arXiv, PubMed, and Semantic Scholar (2016-2024)
+            papers across 13 scientific disciplines (2007-2022). Comprehensive metrics include 
+            ML adoption rates (12.8% overall), integration levels (minimal to core), reproducibility 
+            indicators (code availability), temporal evolution, and cross-discipline comparisons. 
+            Addresses three research questions: (1) Quantify ML Impact, (2) Visualize Adoption Dynamics, 
+            (3) Analyze Quality Trade-offs.
           </p>
         </header>
 
@@ -33,19 +37,66 @@ export function FindingsPage() {
           <StatStrip metrics={data.globalMetrics} />
         </div>
 
-        {/* Main Content Sections */}
-        <GlobalImpactOverview
-          attributionScore={data.attributionScore}
-          efficiencyMetrics={data.efficiencyMetrics}
-        />
+        {/* Research Question 1: Quantify ML Impact */}
+        <section className="mb-20">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white/95 mb-2">
+              Research Question 1: Quantify ML Impact
+            </h2>
+            <p className="text-white/60">
+              Measure how much ML actually contributes to scientific breakthroughs and discovery efficiency.
+              Attribution scoring, acceleration metrics, and efficiency measures.
+            </p>
+          </div>
+          <GlobalImpactOverview
+            attributionScore={data.attributionScore}
+            efficiencyMetrics={data.efficiencyMetrics}
+          />
+          <div className="mt-8">
+            <DisciplineComparison disciplines={data.disciplineMetrics} />
+          </div>
+        </section>
 
-        <DisciplineComparison disciplines={data.disciplineMetrics} />
+        {/* Research Question 2: Visualize Adoption Dynamics */}
+        <section className="mb-20">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white/95 mb-2">
+              Research Question 2: Visualize Adoption Dynamics
+            </h2>
+            <p className="text-white/60">
+              Show how ML techniques spread across scientific disciplines over time.
+              S-curves, citation flows, temporal evolution, and cross-discipline comparison.
+            </p>
+          </div>
+          <AdoptionDynamics adoptionCurves={data.adoptionCurves} />
+        </section>
 
-        <AdoptionDynamics adoptionCurves={data.adoptionCurves} />
+        {/* Research Question 3: Analyze Quality Trade-offs */}
+        <section className="mb-20">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white/95 mb-2">
+              Research Question 3: Analyze Quality Trade-offs
+            </h2>
+            <p className="text-white/60">
+              Investigate whether ML adoption correlates with better or worse research reproducibility.
+              Reproducibility rates, retraction patterns, and code/data availability correlations.
+            </p>
+          </div>
+          <QualitySignals reproducibility={data.reproducibility} />
+        </section>
 
-        <QualitySignals reproducibility={data.reproducibility} />
-
-        <KeyTakeaways takeaways={data.keyTakeaways} />
+        {/* Key Takeaways */}
+        <section className="mb-16">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white/95 mb-2">
+              Key Takeaways & Implications
+            </h2>
+            <p className="text-white/60">
+              Evidence-backed insights organized by strength, addressing all three research questions.
+            </p>
+          </div>
+          <KeyTakeaways takeaways={data.keyTakeaways} />
+        </section>
 
         {/* Footer Note */}
         <footer className="mt-16 pt-8 border-t border-white/10">

@@ -12,10 +12,11 @@ interface SidebarProps {
 
 const navigation = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Summary of Findings", href: "/findings", icon: FileText },
+  { name: "Findings Demo (Validation Metrics)", href: "/findingsdemo", icon: Zap },
   { name: "Case Studies", href: "/case-studies", icon: BarChart3 },
   { name: "Dive", href: "/dive", icon: MessageCircle },
   { name: "Search Papers", href: "/search", icon: Search },
+  { name: "Summary of Findings", href: "#", icon: FileText, disabled: true },
   { name: "Adoption Dynamics", href: "#", icon: GitBranch, disabled: true },
   { name: "Quality Trade-offs", href: "#", icon: Zap, disabled: true },
   { name: "Discovery Traces", href: "#", icon: Search, disabled: true },

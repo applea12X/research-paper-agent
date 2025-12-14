@@ -32,9 +32,9 @@ export function QualitySignals({ reproducibility }: QualitySignalsProps) {
   return (
     <section className="mb-16">
       <SectionHeader
-        subtitle="Section 4"
-        title="Quality, Reproducibility & Risk Signals"
-        description="Comparative analysis of reproducibility indicators between ML and non-ML papers. Neutral assessment of trade-offs."
+        subtitle="Reproducibility & Quality Analysis"
+        title="Quality Trade-offs: ML vs Non-ML Papers"
+        description="Comparative analysis of code availability by ML integration level. Examines correlation between ML adoption depth and reproducibility practices. Overall code availability critically low (<3%) across all disciplines, but deeper ML integration shows consistently better sharing rates."
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -116,19 +116,39 @@ export function QualitySignals({ reproducibility }: QualitySignalsProps) {
           <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="text-sm font-semibold text-white/90 mb-2">
-              Uncertainty & Context
+              Critical Context & Limitations
             </h4>
-            <p className="text-sm text-white/60 leading-relaxed mb-2">
-              ML papers show measurably lower code and data availability (12-15%
-              gap). Retraction rates are slightly higher but within statistical
-              noise.
-            </p>
-            <p className="text-xs text-white/40 leading-relaxed">
-              Confidence bounds: [{reproducibility.confidenceBounds.lower.toFixed(1)}
-              %, {reproducibility.confidenceBounds.upper.toFixed(1)}%] — Gap
-              narrows when controlling for venue and subfield. No evidence of
-              systematic fraud; likely reflects infrastructure maturity and
-              computational barriers to sharing.
+            <div className="space-y-2 text-sm text-white/60 leading-relaxed">
+              <p>
+                <span className="font-semibold text-white/80">Reproducibility Crisis:</span> Overall 
+                code availability is catastrophically low at {reproducibility.mlPapers.codeAvailable.toFixed(2)}% 
+                for ML papers and {reproducibility.nonMLPapers.codeAvailable.toFixed(2)}% for non-ML papers. 
+                Even leading fields (Computer Science: 11.85%) fall far below acceptable standards.
+              </p>
+              <p>
+                <span className="font-semibold text-white/80">ML Level Matters:</span> Within-field 
+                analysis reveals nuanced pattern: core ML papers (21.05% in CS) &gt; moderate ML papers 
+                (12.24%) &gt; minimal ML (10.07%) &gt; non-ML (11.41%). This suggests ML practitioners, 
+                especially those using ML as core methodology, prioritize reproducibility despite 
+                overall low rates.
+              </p>
+              <p>
+                <span className="font-semibold text-white/80">Field-Specific Culture:</span> Cross-field 
+                patterns weaker than within-field patterns, suggesting cultural factors dominate. Medicine 
+                (0.47% code availability) and Business (0%) show systemic barriers beyond ML adoption.
+              </p>
+              <p>
+                <span className="font-semibold text-white/80">Data Limitations:</span> Data availability 
+                estimated from code availability (not directly measured). Retraction rates shown are 
+                industry averages, not from dataset. Actual retraction pattern analysis requires external 
+                databases (e.g., Retraction Watch).
+              </p>
+            </div>
+            <p className="text-xs text-white/40 leading-relaxed mt-3">
+              Confidence bounds: [{reproducibility.confidenceBounds.lower.toFixed(1)}%, 
+              {reproducibility.confidenceBounds.upper.toFixed(1)}%] — Based on actual 
+              code_availability_by_ml_level data from 7,200 papers across 13 disciplines. 
+              Statistical significance varies by field (larger fields more reliable).
             </p>
           </div>
         </div>

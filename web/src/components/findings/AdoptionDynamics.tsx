@@ -38,21 +38,54 @@ export function AdoptionDynamics({ adoptionCurves }: AdoptionDynamicsProps) {
     const disciplineGroups = d3.group(adoptionCurves, (d) => d.discipline);
     const disciplines = Array.from(disciplineGroups.keys());
 
+    // Calculate actual year range from data
+    const allYears = adoptionCurves.map(d => d.year);
+    const minYear = Math.min(...allYears);
+    const maxYear = Math.max(...allYears);
+    const yearRange = [minYear, maxYear];
+
+    // Calculate actual penetration range from data
+    const allPenetrations = adoptionCurves.map(d => d.penetration);
+    const maxPenetration = Math.max(...allPenetrations, 5); // At least 5% for visibility
+    const minPenetration = Math.min(...allPenetrations, 0);
+    // Add padding: 10% above max, ensure min is at least 0
+    const penetrationRange = [
+      Math.max(0, minPenetration - 2), 
+      Math.ceil(maxPenetration * 1.15)
+    ];
+
     // Scales
     const xScale = d3
       .scaleLinear()
-      .domain([2016, 2024])
+      .domain(yearRange)
       .range([0, chartWidth]);
 
     const yScale = d3
       .scaleLinear()
-      .domain([0, 80])
+      .domain(penetrationRange)
       .range([chartHeight, 0]);
 
+    // Extended color palette for all disciplines
+    const colorPalette = [
+      "#60a5fa", // blue
+      "#a78bfa", // purple
+      "#f472b6", // pink
+      "#fbbf24", // yellow
+      "#34d399", // green
+      "#fb923c", // orange
+      "#22d3ee", // cyan
+      "#a855f7", // violet
+      "#ec4899", // fuchsia
+      "#14b8a6", // teal
+      "#f59e0b", // amber
+      "#8b5cf6", // indigo
+      "#06b6d4", // sky
+    ];
+    
     const colorScale = d3
       .scaleOrdinal<string>()
       .domain(disciplines)
-      .range(["#60a5fa", "#a78bfa", "#f472b6", "#fbbf24", "#34d399"]);
+      .range(colorPalette);
 
     // Grid lines
     g.append("g")
@@ -66,9 +99,12 @@ export function AdoptionDynamics({ adoptionCurves }: AdoptionDynamicsProps) {
       .call((g) => g.select(".domain").remove());
 
     // Axes
+    const yearSpan = maxYear - minYear;
+    const numTicks = yearSpan <= 3 ? yearSpan + 1 : Math.min(9, yearSpan + 1);
+    
     g.append("g")
       .attr("transform", `translate(0,${chartHeight})`)
-      .call(d3.axisBottom(xScale).tickFormat((d) => d.toString()).ticks(9))
+      .call(d3.axisBottom(xScale).tickFormat((d) => d.toString()).ticks(numTicks))
       .attr("color", "rgba(255,255,255,0.4)")
       .call((g) => g.select(".domain").attr("stroke", "rgba(255,255,255,0.1)"))
       .call((g) => g.selectAll(".tick line").attr("stroke", "rgba(255,255,255,0.1)"));
@@ -116,16 +152,37 @@ export function AdoptionDynamics({ adoptionCurves }: AdoptionDynamicsProps) {
         .attr("stroke-opacity", 0.8)
         .attr("d", line);
 
-      // Add points at inflection points (2019-2020)
-      const inflectionPoint = sortedData.find((d) => d.year === 2020);
-      if (inflectionPoint) {
+      // Add points at all data points for better visibility
+      sortedData.forEach((point) => {
         g.append("circle")
-          .attr("cx", xScale(inflectionPoint.year))
-          .attr("cy", yScale(inflectionPoint.penetration))
-          .attr("r", 4)
+          .attr("cx", xScale(point.year))
+          .attr("cy", yScale(point.penetration))
+          .attr("r", 3)
           .attr("fill", colorScale(discipline))
-          .attr("stroke", "rgba(0,0,0,0.3)")
-          .attr("stroke-width", 2);
+          .attr("stroke", "rgba(255,255,255,0.3)")
+          .attr("stroke-width", 1)
+          .attr("opacity", 0.8);
+      });
+
+      // Highlight inflection points (years with significant jumps)
+      if (sortedData.length >= 2) {
+        for (let i = 1; i < sortedData.length; i++) {
+          const prev = sortedData[i - 1];
+          const curr = sortedData[i];
+          const growth = curr.penetration - prev.penetration;
+          const growthRate = prev.penetration > 0 ? (growth / prev.penetration) * 100 : 0;
+          
+          // Mark as inflection if growth rate > 50%
+          if (growthRate > 50 && growth > 5) {
+            g.append("circle")
+              .attr("cx", xScale(curr.year))
+              .attr("cy", yScale(curr.penetration))
+              .attr("r", 5)
+              .attr("fill", colorScale(discipline))
+              .attr("stroke", "rgba(255,255,255,0.8)")
+              .attr("stroke-width", 2);
+          }
+        }
       }
     });
 
@@ -159,9 +216,9 @@ export function AdoptionDynamics({ adoptionCurves }: AdoptionDynamicsProps) {
   return (
     <section className="mb-16">
       <SectionHeader
-        subtitle="Section 3"
-        title="Adoption Dynamics & Temporal Trends"
-        description="S-curve adoption patterns showing how ML spread through scientific disciplines from 2016-2024. Circles mark inflection points."
+        subtitle="Temporal Evolution & S-Curves"
+        title="Adoption Dynamics Across Disciplines"
+        description="S-curve adoption patterns showing ML spread through scientific disciplines (2007-2022). Larger circles mark inflection points with >50% year-over-year growth. Note dramatic 2022 spike across multiple fields, suggesting watershed moment in ML accessibility and adoption."
       />
 
       <div className="glass rounded-2xl p-8">
@@ -169,13 +226,31 @@ export function AdoptionDynamics({ adoptionCurves }: AdoptionDynamicsProps) {
       </div>
 
       <div className="mt-4 p-5 glass rounded-xl">
-        <p className="text-sm text-white/60 leading-relaxed">
-          <span className="font-semibold text-white/80">Key observation:</span>{" "}
-          Most disciplines entered plateau phase (2023-2024), suggesting ML
-          integration is becoming standard practice rather than a differentiating
-          factor. Drug Discovery and Materials Science show earliest adoption with
-          inflection around 2019.
+        <p className="text-sm text-white/60 leading-relaxed mb-3">
+          <span className="font-semibold text-white/80">Key Observations:</span>
         </p>
+        <ul className="text-sm text-white/60 leading-relaxed space-y-2 list-disc list-inside">
+          <li>
+            <span className="font-semibold text-blue-400">2022 Inflection Point:</span> Multiple 
+            disciplines show dramatic adoption spikes (CS: 93%, Psych: 52%, Bio: 61%), suggesting 
+            breakthrough in ML accessibility (likely transformer models, AutoML, cloud computing).
+          </li>
+          <li>
+            <span className="font-semibold text-purple-400">Three-Tier Pattern:</span> Leaders 
+            (CS 37%, Psych 17%), Emerging (Env Sci 15%, Econ 13%), Laggards (Math 3%, Eng 8%). 
+            Reflects data availability, interpretability needs, and methodological traditions.
+          </li>
+          <li>
+            <span className="font-semibold text-green-400">S-Curve Maturity:</span> Computer Science 
+            shows mature adoption curve (early steep growth, pre-2022 plateau), while Biology/Psychology 
+            exhibit classic S-curve acceleration phase. Math/Engineering remain in innovation stage.
+          </li>
+          <li>
+            <span className="font-semibold text-yellow-400">Data Limitations:</span> Limited post-2022 
+            data prevents validation of sustained adoption vs temporary spike. Some fields show sparse 
+            temporal coverage due to dataset sampling.
+          </li>
+        </ul>
       </div>
     </section>
   );

@@ -16,9 +16,9 @@ export function KeyTakeaways({ takeaways }: KeyTakeawaysProps) {
   return (
     <section className="mb-16">
       <SectionHeader
-        subtitle="Section 5"
+        subtitle="Synthesis & Conclusions"
         title="Key Takeaways & Implications"
-        description="Evidence-backed insights, emerging patterns, and open questions. Clear differentiation between signal strength levels."
+        description="Evidence-backed insights addressing all three research questions. Organized by evidence strength: strong signals (high confidence), emerging patterns (medium confidence), and open questions (low confidence, insufficient data)."
       />
 
       <div className="space-y-6">
