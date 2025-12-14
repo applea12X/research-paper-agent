@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { ChatInterface } from "@/components/dive/ChatInterface";
-import { REAL_PAPERS } from "@/data/realHeatmapData";
+import { REAL_PAPERS } from "@/data/paperDataLoader";
 
 export default function DivePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

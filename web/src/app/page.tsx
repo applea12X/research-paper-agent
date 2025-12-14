@@ -5,7 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { BubbleHeatmap } from "@/components/BubbleHeatmap";
 import { DisciplineSummaryPanel } from "@/components/DisciplineSummaryPanel";
-import { REAL_PAPERS, REAL_DISCIPLINES, getPapersByDiscipline } from "@/data/realHeatmapData";
+import { REAL_PAPERS, REAL_DISCIPLINES, getPapersByDiscipline } from "@/data/paperDataLoader";
 import { FilterType, Discipline } from "@/types";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 

@@ -118,13 +118,15 @@ export function generateRealPapers(): Paper[] {
       for (let i = 0; i < mlPapersThisYear; i++) {
         const hasCode = Math.random() < (codeAvailability / 100);
         const topFrameworks = Object.keys(frameworks).slice(0, 3);
+        const impactScore = 60 + Math.random() * 35;
 
         papers.push({
           id: `${fieldName}-${year}-ml-${paperId++}`,
           title: `ML Research in ${fieldName} (${year})`,
           year,
           domain: fieldName.replace(/([A-Z])/g, ' $1').trim(),
-          impactScore: 60 + Math.random() * 35, // ML papers tend to have higher impact
+          mlImpact: impactScore >= 85 ? 'core' : impactScore >= 65 ? 'substantial' : 'moderate',
+          impactScore,
           codeAvailable: hasCode,
           citations: Math.floor(Math.random() * 500),
           mlFrameworks: topFrameworks.length > 0 ? topFrameworks : undefined,
@@ -137,13 +139,15 @@ export function generateRealPapers(): Paper[] {
       // Generate non-ML papers
       for (let i = 0; i < nonMlPapersThisYear; i++) {
         const hasCode = Math.random() < (codeAvailability / 100);
+        const impactScore = 30 + Math.random() * 40;
 
         papers.push({
           id: `${fieldName}-${year}-nonml-${paperId++}`,
           title: `Traditional Research in ${fieldName} (${year})`,
           year,
           domain: fieldName.replace(/([A-Z])/g, ' $1').trim(),
-          impactScore: 30 + Math.random() * 40,
+          mlImpact: impactScore >= 45 ? 'moderate' : impactScore >= 25 ? 'minimal' : 'none',
+          impactScore,
           codeAvailable: hasCode,
           citations: Math.floor(Math.random() * 300),
           statisticalMethods: methodology?.statistical_methods_usage_rate > 50

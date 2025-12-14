@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Discipline, Paper } from "@/types";
 import { computeDisciplineSummary, computeGlobalAverages } from "@/utils/disciplineStats";
-import { REAL_PAPERS } from "@/data/realHeatmapData";
+import { REAL_PAPERS } from "@/data/paperDataLoader";
 import { MetricCard } from "./discipline-summary/MetricCard";
 import { DistributionBar } from "./discipline-summary/DistributionBar";
 import { TrendChart } from "./discipline-summary/TrendChart";

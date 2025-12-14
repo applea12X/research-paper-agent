@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { CaseStudiesPage } from "@/components/caseStudies/CaseStudiesPage";
-import { REAL_PAPERS } from "@/data/realHeatmapData";
+import { REAL_PAPERS } from "@/data/paperDataLoader";
 import { FilterType } from "@/types";
 
 export default function CaseStudies() {

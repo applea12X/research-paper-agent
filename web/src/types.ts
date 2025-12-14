@@ -1,7 +1,10 @@
+export type MLImpact = 'none' | 'minimal' | 'moderate' | 'substantial' | 'core';
+
 export interface Paper {
   id: string;
   title: string;
-  impactScore: number; // 0 to 100
+  mlImpact: MLImpact; // Word-based ML impact category
+  impactScore: number; // 0 to 100 (derived from mlImpact for compatibility)
   codeAvailable: boolean;
   year: number;
   citations: number;
