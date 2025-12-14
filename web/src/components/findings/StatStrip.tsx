@@ -5,15 +5,17 @@ interface StatStripProps {
 }
 
 export function StatStrip({ metrics }: StatStripProps) {
+  const formatDecimal = (value: number) => Number(value.toFixed(3));
+
   const stats = [
     {
       label: "ML Penetration (2016-2024)",
-      value: `${metrics.mlPenetration}%`,
+      value: `${formatDecimal(metrics.mlPenetration)}%`,
       description: "of papers use machine learning methods",
     },
     {
       label: "Discovery Acceleration",
-      value: `${metrics.discoveryAcceleration}`,
+      value: `${formatDecimal(metrics.discoveryAcceleration)}`,
       unit: "months",
       description: "median time saved in discovery process",
     },
@@ -24,7 +26,7 @@ export function StatStrip({ metrics }: StatStripProps) {
     },
     {
       label: "Reproducibility Delta",
-      value: `${metrics.reproducibilityDelta}%`,
+      value: `${formatDecimal(metrics.reproducibilityDelta)}%`,
       description: "ML vs non-ML code availability gap",
     },
   ];

@@ -2,6 +2,13 @@ import { FindingsData } from "@/types/findings";
 import validationMetrics from "./validation_metrics_summary.json";
 
 /**
+ * Helper function to truncate decimals to max 3 places
+ */
+function truncateDecimals(value: number): number {
+  return Number(value.toFixed(3));
+}
+
+/**
  * Transform actual research data into the findings page structure
  */
 export function loadRealFindingsData(): FindingsData {
@@ -29,7 +36,7 @@ export function loadRealFindingsData(): FindingsData {
 
   return {
     globalMetrics: {
-      mlPenetration: aggregateMLAdoption,
+      mlPenetration: truncateDecimals(aggregateMLAdoption),
       discoveryAcceleration,
       strongestField,
       reproducibilityDelta,
@@ -38,10 +45,10 @@ export function loadRealFindingsData(): FindingsData {
 
     attributionScore: {
       mlContribution: estimateMLContribution(aggregateMLAdoption),
-      domainInsight: 100 - estimateMLContribution(aggregateMLAdoption),
+      domainInsight: truncateDecimals(100 - estimateMLContribution(aggregateMLAdoption)),
       confidenceInterval: [
-        Math.max(0, estimateMLContribution(aggregateMLAdoption) - 5),
-        Math.min(100, estimateMLContribution(aggregateMLAdoption) + 5)
+        truncateDecimals(Math.max(0, estimateMLContribution(aggregateMLAdoption) - 5)),
+        truncateDecimals(Math.min(100, estimateMLContribution(aggregateMLAdoption) + 5))
       ],
     },
 
@@ -55,18 +62,18 @@ export function loadRealFindingsData(): FindingsData {
 
     reproducibility: {
       mlPapers: {
-        codeAvailable: aggregateCodeAvailability,
-        dataAvailable: aggregateCodeAvailability * 0.7, // Estimate
+        codeAvailable: truncateDecimals(aggregateCodeAvailability),
+        dataAvailable: truncateDecimals(aggregateCodeAvailability * 0.7), // Estimate
         retractionRate: 0.34, // Industry average
       },
       nonMLPapers: {
-        codeAvailable: aggregateCodeAvailability * 1.2, // Estimate based on trends
-        dataAvailable: aggregateCodeAvailability * 0.85,
+        codeAvailable: truncateDecimals(aggregateCodeAvailability * 1.2), // Estimate based on trends
+        dataAvailable: truncateDecimals(aggregateCodeAvailability * 0.85),
         retractionRate: 0.21,
       },
       confidenceBounds: {
-        lower: reproducibilityDelta - 3,
-        upper: reproducibilityDelta + 3,
+        lower: truncateDecimals(reproducibilityDelta - 3),
+        upper: truncateDecimals(reproducibilityDelta + 3),
       },
     },
 
@@ -79,7 +86,7 @@ export function loadRealFindingsData(): FindingsData {
 function calculateAcceleration(mlAdoptionRate: number): number {
   // Estimate discovery acceleration based on ML adoption rate
   // Higher adoption correlates with faster discovery cycles
-  return mlAdoptionRate * 0.35; // Scaling factor
+  return truncateDecimals(mlAdoptionRate * 0.35); // Scaling factor
 }
 
 function findStrongestField(fieldAnalyses: any): string {
@@ -116,13 +123,13 @@ function calculateReproducibilityDelta(fieldAnalyses: any): number {
     }
   });
 
-  return count > 0 ? totalDelta / count : 0;
+  return count > 0 ? truncateDecimals(totalDelta / count) : 0;
 }
 
 function estimateMLContribution(mlAdoption: number): number {
   // Estimate ML's contribution to scientific progress
   // This is a simplified model based on adoption rate
-  return Math.min(50, mlAdoption * 1.2);
+  return truncateDecimals(Math.min(50, mlAdoption * 1.2));
 }
 
 function generateEfficiencyMetrics(fieldAnalyses: any): any[] {
@@ -139,20 +146,20 @@ function generateEfficiencyMetrics(fieldAnalyses: any): any[] {
     },
     {
       label: "Average Code Availability",
-      value: Object.values(fieldAnalyses).reduce(
+      value: truncateDecimals(Object.values(fieldAnalyses).reduce(
         (sum: number, field: any) => sum + (field.reproducibility?.code_availability_rate || 0),
         0
-      ) / Object.keys(fieldAnalyses).length,
+      ) / Object.keys(fieldAnalyses).length),
       unit: "%",
       trend: [1.5, 1.8, 2.0, 2.2, 2.4, 2.52],
       description: "Average percentage of papers with publicly available code",
     },
     {
       label: "ML Adoption Growth",
-      value: Object.values(fieldAnalyses).reduce(
+      value: truncateDecimals(Object.values(fieldAnalyses).reduce(
         (sum: number, field: any) => sum + (field.ml_impact?.ml_adoption_rate || 0),
         0
-      ) / Object.keys(fieldAnalyses).length,
+      ) / Object.keys(fieldAnalyses).length),
       unit: "%",
       trend: [5.0, 6.5, 8.0, 9.5, 10.5, 11.63],
       description: "Average ML adoption rate across all disciplines",
@@ -170,11 +177,11 @@ function generateDisciplineMetrics(fieldAnalyses: any): any[] {
 
     disciplines.push({
       disciplineName: fieldName.replace(/([A-Z])/g, ' $1').trim(),
-      mlPenetration: mlAdoption,
+      mlPenetration: truncateDecimals(mlAdoption),
       accelerationScore: calculateAcceleration(mlAdoption),
-      citationLift: 1 + (mlAdoption / 50), // Estimate
-      reproducibilitySignal: codeAvailability * 10, // Scale to 0-100
-      netImpactRating: Math.min(100, (mlAdoption + codeAvailability) * 1.5),
+      citationLift: truncateDecimals(1 + (mlAdoption / 50)), // Estimate
+      reproducibilitySignal: truncateDecimals(codeAvailability * 10), // Scale to 0-100
+      netImpactRating: truncateDecimals(Math.min(100, (mlAdoption + codeAvailability) * 1.5)),
       paperCount: totalPapers,
     });
   }
@@ -192,7 +199,7 @@ function generateAdoptionCurves(fieldAnalyses: any): any[] {
     for (const [year, data] of Object.entries(temporal.ml_adoption_by_year) as [string, any][]) {
       curves.push({
         year: parseInt(year),
-        penetration: data.ml_rate || 0,
+        penetration: truncateDecimals(data.ml_rate || 0),
         discipline: fieldName.replace(/([A-Z])/g, ' $1').trim(),
       });
     }

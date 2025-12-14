@@ -104,7 +104,7 @@ export function EventDetails({ event }: EventDetailsProps) {
             <div className="flex justify-between items-center">
               <span className="text-sm text-white/70">Acceleration</span>
               <span className={`font-mono ${event.accelerationMonths > 0 ? "text-green-400" : "text-red-400"}`}>
-                {event.accelerationMonths > 0 ? "+" : ""}{event.accelerationMonths} months
+                {event.accelerationMonths > 0 ? "+" : ""}{Number(event.accelerationMonths.toFixed(3))} months
               </span>
             </div>
             
